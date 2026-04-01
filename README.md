@@ -12,8 +12,8 @@
     - 如果用higher_bound作为主算法，下标区间拓展为[low-1, high)
 - 搜索算法的写法
     - lower_bound or upper_bound都行。
-    - lower_bound: 在序列中找到x <= ele的数中最小的一个。所以，向左查找，是下界，lower bound.，向下界寻找。
-    - upper_bound: 在序列中找到x >= ele的数中最大的一个。所以，是上界，upper bound. 向上界寻找。
+    - lower_bound: 在序列中找到x <= ele的数中最小的一个。所以，向左查找，是下界，lower bound，向下界寻找。
+    - upper_bound: 在序列中找到x >= ele的数中最大的一个。所以，是上界，upper bound，向上界寻找。
 
 ```cpp
 int lower_bound(const std::vector<int>& nums, int low, int high, int x) {
@@ -41,8 +41,6 @@ int higher_bound(const std::vector<int>& nums, int low, int high, int x) {
   return low;
 }
 ```
-
-### 双指针
 
 #### [704. Binary Search](https://leetcode.com/problems/binary-search/description/)
 
@@ -72,6 +70,8 @@ private:
     }
 };
 ```
+
+### 双指针
 
 #### [27. Remove Element](https://leetcode.com/problems/remove-element/description/)
 - 一刷
