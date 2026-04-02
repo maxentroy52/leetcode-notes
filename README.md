@@ -71,6 +71,72 @@ private:
 };
 ```
 
+#### [35. Search Insert Position](https://leetcode.com/problems/search-insert-position/submissions/1966719953/)
+
+- 一刷
+    - 我的思路：二分查位置。
+    - 注意：704需要的两个注意点，即位置非法和查不到，本题都不用关心。
+
+```cpp
+class Solution {
+public:
+    int searchInsert(vector<int>& nums, int target) {
+        return lower_bound(nums, 0, nums.size(), target);
+    }
+    int lower_bound(const vector<int>& nums, int low, int high, int x) {
+        while (low < high) {
+            int mid = low + (high - low) / 2;
+            if (x <= nums[mid]) high = mid;
+            else low = mid + 1;
+        }
+        return low;
+    }
+};
+```
+
+#### [34. Find First and Last Position of Element in Sorted Array](https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/)
+
+- 一刷
+    - 我的思路：套模板，同时需要lower_bound and upper_bound.
+    - 注意点：这个题是查元素，不是查位置。所以和704一样，需要避免两种情况。
+    - 位置非法 or 位置合法但元素不存在
+    - [low, high + 1) and [low - 1, high)，多给一个非法位置
+
+```cpp
+class Solution {
+public:
+    vector<int> searchRange(vector<int>& nums, int target) {
+        vector<int> res(2, -1);
+        auto b = lower_bound(nums, 0, nums.size(), target);
+        auto e = upper_bound(nums, -1, nums.size() - 1, target);
+
+        if (b == nums.size() or nums[b] != target) res[0] = -1;
+        else res[0] = b;
+
+        if (e == -1 or nums[e] != target) res[1] = -1;
+        else res[1] = e;
+
+        return res;
+    }
+    int lower_bound(vector<int>& nums, int low, int high, int x) {
+        while (low < high) {
+            int mid = low + (high - low) / 2;
+            if (x <= nums[mid]) high = mid;
+            else low = mid + 1;
+        }
+        return low;
+    }
+     int upper_bound(vector<int>& nums, int low, int high, int x) {
+        while (low < high) {
+            int mid = low + (high - low) / 2 + 1;
+            if (nums[mid] <= x) low = mid;
+            else high = mid - 1;
+        }
+        return low;
+    }   
+};
+```
+
 ### 双指针
 
 #### [27. Remove Element](https://leetcode.com/problems/remove-element/description/)
