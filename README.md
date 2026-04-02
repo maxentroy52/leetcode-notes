@@ -149,3 +149,93 @@ public:
     }
 };
 ```
+
+#### [209. Minimum Size Subarray Sum](https://leetcode.com/problems/minimum-size-subarray-sum/)
+
+- 一刷
+    - 我的思路：枚举subarray, O(n^2)
+    - 难点：线性时间复杂度下，不知道怎么枚举subarray
+    - 最优解：双指针枚举subrarray
+        - 既然线性时间复杂度，只能有一个for-range-loop
+        - left控制起点，right控制终点。遍历right,
+        - left根据sum是否大于target，进行退场操作。
+        - 有点快慢指针的意思
+        - 每个元素，进场一次，出场一次。所以线性
+
+```cpp
+class Solution {
+public:
+    int minSubArrayLen(int target, vector<int>& nums) {
+        int res = INT32_MAX;
+        int sum = 0;
+        for (int left = 0, right = 0; right < nums.size(); ++right) {
+            sum += nums[right];
+            while (sum >= target) {
+                int len = right - left + 1;
+                res = len < res?len:res;
+                sum -= nums[left++];
+            }
+        }
+        return res==INT32_MAX?0:res;
+    }
+};
+```
+
+### 无分类
+
+#### [59. Spiral Matrix II](https://leetcode.com/problems/spiral-matrix-ii/)
+
+- 一刷
+    - 我的思路：模拟即可。
+    - 每次就四个方向，按照意义模拟即可。循环结束的条件是所有数字填充完。
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> generateMatrix(int n) {
+        vector<vector<int>> res(n, vector<int>(n, 0));
+        int num = 0;
+        int row = 0, col = 0;
+        while (num < n * n) {
+            // right
+            while (col < n and res[row][col] == 0) {
+                //std::cout << row << "," << col << std::endl;
+                ++num;
+                res[row][col] = num;
+                ++col;
+                
+            }
+            --col;
+            ++row;
+            // down
+            while (row < n and res[row][col] == 0) {
+                //std::cout << row << "," << col << std::endl;
+                ++num;
+                res[row][col] = num;
+                ++row;
+            }
+            --row;
+            --col;
+            // left
+            while (col >= 0 and res[row][col] == 0) {
+                //std::cout << row << "," << col << std::endl;
+                ++num;
+                res[row][col] = num;
+                --col;
+            }
+            ++col;
+            --row;
+            // up
+            while (row >= 0 and res[row][col] == 0) {
+                //std::cout << row << "," << col << std::endl;
+                ++num;
+                res[row][col] = num;
+                --row;
+            }
+            ++row;
+            ++col;
+        }
+        return res;
+    }
+};
+```
