@@ -305,3 +305,146 @@ public:
     }
 };
 ```
+
+## 链表
+
+### 无分类
+
+#### [203. Remove Linked List Elements](https://leetcode.com/problems/remove-linked-list-elements/)
+
+- 一刷
+    - 我的思路：dummy节点 + 基本删除操作
+    - 迭代pre/cur指针，便于操作
+
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* removeElements(ListNode* head, int val) {
+        auto* dummy = new ListNode();
+        dummy->next = head;
+
+        auto pre = dummy;
+        auto cur = head;
+
+        while (cur) {
+            if (cur->val == val) {
+                pre->next = cur->next;
+                delete cur;
+                cur = pre->next;
+            } else {
+                pre = cur;
+                cur = cur->next;
+            }
+        }
+
+        head = dummy->next;
+        delete dummy;
+        dummy = nullptr;
+        return head;
+    }
+};
+```
+
+#### [707. Design Linked List](https://leetcode.com/problems/design-linked-list/)
+
+- 一刷
+    - 我的思路：围绕addHead/addTail这两个方法，先进行数据结构设计，然后实现其他方法。
+        - 增加head/tail指针
+        - 所有方法，都需要针对数据结构设计，进行调整。
+    - 心得：整体来说，这个题反而偏工程实践，不难，但想一把写对不容易。
+        - 由于增加了头结点，下标可以从-1 开始，也可以从0开始。注意针对不同的方法即可。
+        - 所有add/delete方法，需要注意对head/tail的更新。
+        - 元素下标从0开始，一开始我没注意到
+
+```cpp
+class MyLinkedList {
+public:
+    MyLinkedList() {
+        head = new Node();
+        tail = head;    
+    }
+    
+    int get(int index) {
+        auto cur = head->next;
+        for (int i = 0; i < index and cur; ++i) {
+            cur = cur->next;   
+        }     
+        if(!cur) return -1;
+        else return cur->val;
+    }
+    
+    void addAtHead(int val) {
+        auto* node = new Node(val);
+        node->next = head->next;
+        head->next = node;
+
+        if (!node->next) tail = node;
+    }
+    
+    void addAtTail(int val) {
+        auto* node = new Node(val);
+        tail->next = node;
+        tail = node;
+    }
+    
+    void addAtIndex(int index, int val) {
+        auto cur = head;
+        for (int i = -1; i < index - 1 and cur; ++i) {
+            cur = cur->next;
+        }
+        if (!cur) return;
+
+        auto node = new Node(val);
+        node->next = cur->next;
+        cur->next = node;
+
+        if (!node->next) tail = node;
+    }
+    
+    void deleteAtIndex(int index) {
+        auto cur = head;
+        for (int i = -1; i < index - 1 and cur; ++i) {
+            cur = cur->next;
+        }
+        if (!cur) return;
+        auto tmp = cur->next;
+        if (!tmp) return;
+
+        cur->next = tmp->next;
+        delete tmp;
+        tmp = nullptr;   
+
+        if (cur->next == nullptr) tail = cur;
+    }
+private:
+    struct Node {
+        int val = 0;
+        Node* next = nullptr;
+        Node() = default;
+        Node(int v) : val(v), next(nullptr) {}
+    };
+
+    Node* head = nullptr;
+    Node* tail = nullptr;
+};
+
+/**
+ * Your MyLinkedList object will be instantiated and called as such:
+ * MyLinkedList* obj = new MyLinkedList();
+ * int param_1 = obj->get(index);
+ * obj->addAtHead(val);
+ * obj->addAtTail(val);
+ * obj->addAtIndex(index,val);
+ * obj->deleteAtIndex(index);
+ */
+```
