@@ -365,7 +365,6 @@ public:
         - 由于增加了头结点，下标可以从-1 开始，也可以从0开始。注意针对不同的方法即可。
         - 所有add/delete方法，需要注意对head/tail的更新。
         - 元素下标从0开始，一开始我没注意到
-
 ```cpp
 class MyLinkedList {
 public:
@@ -447,4 +446,439 @@ private:
  * obj->addAtIndex(index,val);
  * obj->deleteAtIndex(index);
  */
+```
+
+- 二刷
+    - 注意点：
+        - 数据结构设计 
+        - 下标
+        - tail处理
+    - 主要解决的是下标的事
+        - 引入pre/cur
+        - 统一下标从0开始
+
+```cpp
+class MyLinkedList {
+public:
+    MyLinkedList() {
+        head = new Node();
+        tail = head;    
+    }
+    
+    int get(int index) {
+        auto cur = head->next;
+        for (int i = 0; i < index and cur; ++i) {
+            cur = cur->next;   
+        }     
+        if(!cur) return -1;
+        else return cur->val;
+    }
+    
+    void addAtHead(int val) {
+        auto* node = new Node(val);
+        node->next = head->next;
+        head->next = node;
+
+        if (!node->next) tail = node;
+    }
+    
+    void addAtTail(int val) {
+        auto* node = new Node(val);
+        tail->next = node;
+        tail = node;
+    }
+    
+    void addAtIndex(int index, int val) {
+        // auto cur = head;
+        // for (int i = -1; i < index - 1 and cur; ++i) {
+        //     cur = cur->next;
+        // }
+        // if (!cur) return;
+
+        // auto node = new Node(val);
+        // node->next = cur->next;
+        // cur->next = node;
+
+        // if (!node->next) tail = node;
+
+        auto pre = head;
+        auto cur = head->next;
+        int i = 0;
+        for (i = 0; i < index and cur; ++i) {
+            pre = cur;
+            cur = cur->next;
+        }
+
+        if(i < index) return;
+
+        auto node = new Node(val);
+        pre->next = node;
+        node->next = cur;
+
+        if (!node->next) tail = node;
+    }
+    
+    void deleteAtIndex(int index) {
+        // auto cur = head;
+        // for (int i = -1; i < index - 1 and cur; ++i) {
+        //     cur = cur->next;
+        // }
+        // if (!cur) return;
+        // auto tmp = cur->next;
+        // if (!tmp) return;
+
+        // cur->next = tmp->next;
+        // delete tmp;
+        // tmp = nullptr;   
+
+        // if (cur->next == nullptr) tail = cur;
+        auto pre = head;
+        auto cur = head->next;
+        int i = 0;
+        for (i < 0; i < index and cur; ++i) {
+            pre = cur;
+            cur = cur->next;
+        }
+        if (i < index) return;
+        if (!cur) return;
+
+        pre->next = cur->next;
+        delete cur;
+        cur = nullptr;
+
+        if (!pre->next) tail = pre;
+        
+    }
+private:
+    struct Node {
+        int val = 0;
+        Node* next = nullptr;
+        Node() = default;
+        Node(int v) : val(v), next(nullptr) {}
+    };
+
+    Node* head = nullptr;
+    Node* tail = nullptr;
+};
+
+/**
+ * Your MyLinkedList object will be instantiated and called as such:
+ * MyLinkedList* obj = new MyLinkedList();
+ * int param_1 = obj->get(index);
+ * obj->addAtHead(val);
+ * obj->addAtTail(val);
+ * obj->addAtIndex(index,val);
+ * obj->deleteAtIndex(index);
+ */
+```
+
+#### [206. Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/description/)
+
+- 一刷
+    - 我的思路
+        - 反转的核心是：cur->next = pre
+        - 但是这样会丢掉下一个节点，无法迭代，所以先保存即可
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        ListNode* pre = nullptr;
+        auto cur = head;
+        while (cur) {
+            auto next = cur->next;
+            cur->next = pre;
+
+            pre = cur;
+            cur = next;
+        }
+
+        head = pre;
+        return head;
+    }
+};
+```
+
+- 二刷
+    - 我的思路：原问题与子问题具有相同的结构
+    - 递归边界好写
+    - 递归执行，处理当前节点和剩余子链表即可。
+    - 这里注意，处理当前节点并不会改动子链表的头指针，因为reverse.
+
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        if (!head or !head->next) return head;
+
+        auto new_head = reverseList(head->next);
+
+        auto tail = head->next;
+        tail->next = head;
+        head->next = nullptr;
+
+        return new_head;
+    }
+};
+```
+
+#### [24. Swap Nodes in Pairs](https://leetcode.com/problems/swap-nodes-in-pairs/description/)
+
+- 一刷
+    - 我的思路
+        - 关注局部，我先不考虑边界的情况，先写出swap函数。再考虑外部
+        - 增加dummy节点，但最后一定别忘了释放，以及**更新head**
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* swapPairs(ListNode* head) {
+        auto* dummy = new ListNode();
+        dummy->next = head;
+
+        auto pre = dummy;
+        while (swapNew(pre)) {
+            pre = pre->next->next;
+        }
+        head = dummy->next;
+        delete dummy;
+        return head;
+    }
+    bool swapNew(ListNode*& pre) {
+        auto cur = pre->next;
+        if (!cur) return false;
+        auto nex = cur->next;
+        if (!nex) return false;
+
+        auto tmp = nex->next;
+
+        pre->next = nex;
+        nex->next = cur;
+        cur->next = tmp;
+
+        return true;
+
+    }
+};
+```
+
+#### [19. Remove Nth Node From End of List](https://leetcode.com/problems/remove-nth-node-from-end-of-list/description/)
+
+- 一刷
+    - 我的思路
+        - 快慢指针，一个先走N步，一个接着走，这样fast到终点时，slow刚好到倒数N节点
+        - 为了方便删除，引入pre/cur写法。
+        - 增加dummy node，别忘了最后删除该节点，以及更新head.
+
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        auto* dummy = new ListNode(); 
+        dummy->next = head;
+
+        auto fast = dummy;
+        while (n--) {
+            fast = fast->next;
+        }
+
+        ListNode* pre = nullptr;
+        auto slow = dummy;
+        while (fast) {
+            fast = fast->next;
+            pre = slow;
+            slow = slow->next;
+        }
+
+        pre->next = slow->next;
+        delete slow;
+        slow = nullptr;
+
+        head = dummy->next;
+
+        delete dummy;
+        return head;
+    }
+};
+```
+
+#### [160. Intersection of Two Linked Lists](https://leetcode.com/problems/intersection-of-two-linked-lists/description/)
+
+- 一刷
+    - 我的思路：遍历第一个链表，构造set. 遍历第二个链表，查一下。不高效。
+
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        std::set<ListNode*> pointers;
+        for (auto cur = headA; cur; cur = cur->next) {
+            pointers.insert(cur);
+        }
+
+        for (auto cur = headB; cur; cur = cur->next) {
+            if (pointers.count(cur)) return cur;
+        }
+
+        return nullptr;
+    }
+};
+```
+
+- 二刷
+    - 最优解：算出步长差值diff。然后长链表移动diff。两个链表再同时移动，如果有交汇，就有，否则没有。
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        int lenA = 0;
+        for (auto cur = headA; cur; cur = cur->next) {
+            lenA++;
+        }
+
+        int lenB = 0;
+        for (auto cur = headB; cur; cur = cur->next) {
+            lenB++;
+        }
+
+        if (lenA < lenB) {
+            auto diff = lenB - lenA;
+            while (diff--) { headB = headB->next; }
+        } else {
+            auto diff = lenA - lenB;
+            while (diff--) { headA = headA->next; }
+        }
+
+        return intersection(headA, headB);
+    }
+
+    ListNode *intersection(ListNode *headA, ListNode *headB) {
+        while (headA and headB) {
+            if (headA == headB) return headA;
+            else {headA = headA->next; headB = headB->next;}
+        }
+        return nullptr;
+    }
+};
+```
+
+#### [141. Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/description/)
+
+- 一刷
+    - 我的思路：快慢指针，一个走一步，一个走两步。如果有环，一定可以相遇。
+    - 注意：快指针只能走2步，否则会跨过去，虽然有环，但是不能很快发现。
+
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    bool hasCycle(ListNode *head) {
+        auto fast = head;
+        auto slow = head;
+        while (fast and fast->next) {
+            fast = fast->next->next;
+            slow = slow->next;
+            if (fast==slow) return true;
+        }
+        return false;
+    }
+};
+```
+
+#### [142. Linked List Cycle II](https://leetcode.com/problems/linked-list-cycle-ii/description/)
+
+- 一刷
+    - 我的思路：没思路。看了题解。需要数学论证：结论
+        - 首先，寻找相遇点。
+        - 然后，一个从相遇点开始，一个从头开始，相交处即为环入口。
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *detectCycle(ListNode *head) {
+        auto fast = head;
+        auto slow = head;
+        while (fast and fast->next) {
+            fast = fast->next->next;
+            slow = slow->next;
+            if (fast == slow) break;
+        }
+        if (!fast or !fast->next) return nullptr;
+        auto index1 = head;
+        auto index2 = fast;
+        while (index1 != index2) {
+            index1 = index1->next;
+            index2 = index2->next;
+        }
+        return index1;
+    }
+};
 ```
