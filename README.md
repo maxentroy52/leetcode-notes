@@ -249,6 +249,18 @@ public:
 };
 ```
 
+#### [1. Two Sum](https://leetcode.com/problems/two-sum/)
+
+**双指针解法本身并不强制要求排序，但在这个特定问题中，排序是为了让双指针能够正确工作**。
+
+- 双指针的核心原理
+    - 双指针算法的正确性依赖于数据的单调性：
+    - 当数组有序时，我们可以根据 sum 与 target 的比较结果，确定性地移动指针：
+        - sum < target → 需要更大的数 → left++
+        - sum > target → 需要更小的数 → right--
+- left/right只是两个数的指针，不代表区间
+- 这个题最优解还是哈希表，时间O(n)，空间O(n). 双指针主要开销在排序上，空间和哈希表一致。
+
 ### 无分类
 
 #### [59. Spiral Matrix II](https://leetcode.com/problems/spiral-matrix-ii/)
