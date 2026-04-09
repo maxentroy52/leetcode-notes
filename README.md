@@ -1,6 +1,31 @@
-[TOC]
-
 # leetcode-notes
+
+<!-- toc -->
+
+- [数组](#%E6%95%B0%E7%BB%84)
+  * [二分查找](#%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE)
+    + [704. Binary Search](#704-binary-search)
+    + [35. Search Insert Position](#35-search-insert-position)
+    + [34. Find First and Last Position of Element in Sorted Array](#34-find-first-and-last-position-of-element-in-sorted-array)
+  * [双指针](#%E5%8F%8C%E6%8C%87%E9%92%88)
+    + [27. Remove Element](#27-remove-element)
+    + [977. Squares of a Sorted Array](#977-squares-of-a-sorted-array)
+    + [209. Minimum Size Subarray Sum](#209-minimum-size-subarray-sum)
+  * [无分类](#%E6%97%A0%E5%88%86%E7%B1%BB)
+    + [59. Spiral Matrix II](#59-spiral-matrix-ii)
+- [链表](#%E9%93%BE%E8%A1%A8)
+  * [无分类](#%E6%97%A0%E5%88%86%E7%B1%BB-1)
+    + [203. Remove Linked List Elements](#203-remove-linked-list-elements)
+    + [707. Design Linked List](#707-design-linked-list)
+    + [206. Reverse Linked List](#206-reverse-linked-list)
+    + [24. Swap Nodes in Pairs](#24-swap-nodes-in-pairs)
+  * [双指针](#%E5%8F%8C%E6%8C%87%E9%92%88-1)
+    + [19. Remove Nth Node From End of List](#19-remove-nth-node-from-end-of-list)
+    + [160. Intersection of Two Linked Lists](#160-intersection-of-two-linked-lists)
+    + [141. Linked List Cycle](#141-linked-list-cycle)
+    + [142. Linked List Cycle II](#142-linked-list-cycle-ii)
+
+<!-- tocstop -->
 
 ## 数组
 
