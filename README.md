@@ -1,6 +1,38 @@
-[TOC]
-
 # leetcode-notes
+
+<!-- toc -->
+
+- [数组](#%E6%95%B0%E7%BB%84)
+  * [二分查找](#%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE)
+    + [704. Binary Search](#704-binary-search)
+    + [35. Search Insert Position](#35-search-insert-position)
+    + [34. Find First and Last Position of Element in Sorted Array](#34-find-first-and-last-position-of-element-in-sorted-array)
+  * [双指针](#%E5%8F%8C%E6%8C%87%E9%92%88)
+    + [27. Remove Element](#27-remove-element)
+    + [977. Squares of a Sorted Array](#977-squares-of-a-sorted-array)
+    + [209. Minimum Size Subarray Sum](#209-minimum-size-subarray-sum)
+  * [基础](#%E5%9F%BA%E7%A1%80)
+    + [59. Spiral Matrix II](#59-spiral-matrix-ii)
+- [链表](#%E9%93%BE%E8%A1%A8)
+  * [基础](#%E5%9F%BA%E7%A1%80-1)
+    + [203. Remove Linked List Elements](#203-remove-linked-list-elements)
+    + [707. Design Linked List](#707-design-linked-list)
+    + [206. Reverse Linked List](#206-reverse-linked-list)
+    + [24. Swap Nodes in Pairs](#24-swap-nodes-in-pairs)
+  * [双指针](#%E5%8F%8C%E6%8C%87%E9%92%88-1)
+    + [19. Remove Nth Node From End of List](#19-remove-nth-node-from-end-of-list)
+    + [160. Intersection of Two Linked Lists](#160-intersection-of-two-linked-lists)
+    + [141. Linked List Cycle](#141-linked-list-cycle)
+    + [142. Linked List Cycle II](#142-linked-list-cycle-ii)
+- [哈希表](#%E5%93%88%E5%B8%8C%E8%A1%A8)
+  * [基础](#%E5%9F%BA%E7%A1%80-2)
+    + [242. Valid Anagram](#242-valid-anagram)
+    + [349. Intersection of Two Arrays](#349-intersection-of-two-arrays)
+    + [350. Intersection of Two Arrays II](#350-intersection-of-two-arrays-ii)
+    + [202. Happy Number](#202-happy-number)
+    + [1. Two Sum](#1-two-sum)
+
+<!-- tocstop -->
 
 ## 数组
 
@@ -261,7 +293,7 @@ public:
 - left/right只是两个数的指针，不代表区间
 - 这个题最优解还是哈希表，时间O(n)，空间O(n). 双指针主要开销在排序上，空间和哈希表一致。
 
-### 无分类
+### 基础
 
 #### [59. Spiral Matrix II](https://leetcode.com/problems/spiral-matrix-ii/)
 
@@ -322,7 +354,7 @@ public:
 
 ## 链表
 
-### 无分类
+### 基础
 
 #### [203. Remove Linked List Elements](https://leetcode.com/problems/remove-linked-list-elements/)
 
@@ -895,6 +927,176 @@ public:
             index2 = index2->next;
         }
         return index1;
+    }
+};
+```
+
+## 哈希表
+
+### 基础
+
+#### [242. Valid Anagram](https://leetcode.com/problems/valid-anagram/)
+
+- 一刷
+    - 我的思路：两次遍历，第一次建hashmap，++。第二次遍历hashmap,--
+    - 注意，无序使用```std::map```即可
+
+```cpp
+class Solution {
+public:
+    bool isAnagram(string s, string t) {
+        if (s.size() != t.size()) return false;
+
+        std::map<char, int> counter;
+        for (const auto& ch : s) counter[ch]++;
+
+        for (const auto& ch : t) counter[ch]--;
+
+        for (const auto& [k, v] : counter) {
+            if(v != 0) return false;
+        }    
+
+        return true;
+    }
+};
+```
+
+#### [349. Intersection of Two Arrays](https://leetcode.com/problems/intersection-of-two-arrays/description/)
+
+- 一刷
+    - 我的思路：基础题，不赘述，使用```std::set```即可
+
+```cpp
+class Solution {
+public:
+    vector<int> intersection(vector<int>& nums1, vector<int>& nums2) {
+        std::set<int> set1(nums1.begin(), nums1.end());
+
+        set<int> ret;
+        for (const auto& ele : nums2) {
+            if (set1.count(ele)) ret.insert(ele);
+        }
+
+        vector<int> inter_set(ret.begin(), ret.end());
+        return inter_set;
+    }
+};
+```
+
+#### [350. Intersection of Two Arrays II](https://leetcode.com/problems/intersection-of-two-arrays-ii/description/)
+
+- 一刷
+    - 我的思路：这里牵扯到技术，所以使用hashmap, hashset无法解决数量的问题。
+
+```cpp
+class Solution {
+public:
+    vector<int> intersect(vector<int>& nums1, vector<int>& nums2) {
+        std::unordered_map<int, int> map;
+        for (const auto& ele : nums1) map[ele]++;
+
+        std::vector<int> ret;
+        for (const auto& ele : nums2) {
+            auto it = map.find(ele);
+            if (it != map.end() and it->second > 0) {
+                ret.push_back(ele);
+                it->second--;
+            }
+        }
+        return ret;    
+    }
+};
+```
+
+#### [202. Happy Number](https://leetcode.com/problems/happy-number/description/)
+
+- 一刷
+    - 我的思路：这个题我没思路，主要是不知道怎么处理infinite-loop的问题。
+    - 正解：infinite-loop会出现循环数字，这是个正常思路，不一定。但是我没有继续尝试，所以没发现这个规律。
+
+```cpp
+class Solution {
+public:
+    bool isHappy(int n) {
+        std::unordered_set<int> set;
+        while (true) {
+            n = replace(n);
+            if (n == 1) return true;
+            if (set.count(n)) return false;
+            else set.insert(n);
+        }    
+    }
+    int replace(int n) {
+        int ret = 0;
+        while (n) {
+            auto digit = n%10;
+            ret += (digit * digit);
+            n /= 10;
+        }
+        return ret;
+    }
+};
+```
+
+#### [1. Two Sum](https://leetcode.com/problems/two-sum/description/)
+
+- 一刷
+    - 我的思路：hashmap存一个key，判断另一个key是否在即可。看起来简单，操作起来容易出错。
+    - 注意点：下标怎么处理？比如[3,3] 这种，key相同，但是下标不同。
+        - 我使用了拉链法的思路。
+        - 先建表，再查询。(不是最优)
+
+```cpp
+class Solution {
+public:
+    vector<int> twoSum(vector<int>& nums, int target) {
+        std::unordered_map<int, std::vector<int>> hashmap;
+        for (int i = 0; i < nums.size(); ++i) {
+            hashmap[nums[i]].emplace_back(i);
+        }
+
+        vector<int> ret;
+        for (int i = 0; i < nums.size(); ++i) {
+            auto val = target - nums[i];
+
+            auto it = hashmap.find(val);
+            if (it == hashmap.end()) continue;
+
+            const auto& indice = it->second;
+
+            if (val == nums[i] and indice.size() == 1) continue;
+
+
+            ret.push_back(i);
+
+            if (val == nums[i]) ret.push_back(indice[1]);
+            else ret.push_back(indice[0]);
+
+            break;
+        }
+        return ret;
+    }
+};
+```
+
+- 二刷
+    - 最优：一遍遍历即可，不用先建表，再查询。一边建表，一边查询。
+    - 这个办法最明显的优点是，不用存indice，只是一个index.
+```cpp
+class Solution {
+public:
+    vector<int> twoSum(vector<int>& nums, int target) {
+        std::unordered_map<int, int> map;
+        for (int i = 0; i < nums.size(); ++i) {
+            auto val = target - nums[i];
+            auto it = map.find(val);
+            if (it == map.end()) {
+                map.emplace(nums[i], i);
+            } else {
+                return {it->second, i};
+            }
+        }    
+        return {};
     }
 };
 ```
