@@ -293,6 +293,92 @@ public:
 - left/right只是两个数的指针，不代表区间
 - 这个题最优解还是哈希表，时间O(n)，空间O(n). 双指针主要开销在排序上，空间和哈希表一致。
 
+```cpp
+class Solution {
+public:
+    struct Node {
+        int val = 0;
+        int idx = 0;
+        Node (int v, int i) : val(v), idx(i) {}
+
+        bool operator<(const auto& rhs) const {
+            return val < rhs.val;
+        }
+    }; 
+
+    vector<int> twoSum(vector<int>& nums, int target) {
+        vector<int> ret;
+        vector<Node> nodes;
+        for (int i = 0; i < nums.size(); ++i) { nodes.emplace_back(nums[i], i); }
+        std::sort(nodes.begin(), nodes.end());
+        
+        int left = 0, right = nums.size() - 1;
+        while (left < right) {
+            int cur = nodes[left].val + nodes[right].val;
+            if (cur == target) return {nodes[left].idx, nodes[right].idx};
+            if (cur < target) ++left;
+            else --right;
+        }
+
+        return ret;
+    }
+};
+```
+
+#### [15. 3Sum](https://leetcode.com/problems/3sum/description/)
+
+- 一刷
+    - hashtable求解，但去重的情况太多，没做出来。
+- 二刷
+    - 正解，双指针。在2sum的基础上调整即可。不过这个题最大的问题是要处理去重的情况，我也是反复debug多次才作对。
+    - 去重的情形
+        - pruning 3: [0,0,0,0,0] 处理这种case
+        - pruning 4: [-1, 0, 1] 处理这种case [-1] + [0, 1] 以及 [-1] + [0] + [1] 以及 [-1, 0,] + [1] 下标从当前i向后
+        - pruning 5: [0,0,0,0] 也是这种case，但是它和pruing3不同
+            - 前者是[0, 1, 2] and [1, 2, 3]这种 base = 0 and base = 1
+            - 后者是[0, 1, 4] and [0, 2, 3]这种 base = 0, l = 1, r = 4 and base = 0, l = 2, r = 3
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> threeSum(vector<int>& nums) {
+        vector<vector<int>> rets;
+        int len = nums.size();
+        std::sort(nums.begin(), nums.end());
+
+        // pruning 1 - 无解
+        if (0 < nums[0] or nums[len - 1] < 0) return rets;
+
+        for (int i = 0; i < len - 2; ++i) { // pruning 2 - 减少循环次数
+            // pruning 3 - 去重
+            if (0 < i and nums[i] == nums[i - 1]) continue; 
+
+            // pruning 4 - 去重
+            int left = i + 1, right = len - 1;
+            while (left < right) {
+
+                int sum = nums[left] + nums[right] + nums[i];
+
+                if (sum  == 0) { 
+                    vector<int> ret; ret.push_back(nums[i]); ret.push_back(nums[left]); ret.push_back(nums[right]); rets.push_back(ret);
+
+                    // 这里不能少，否则会漏解
+                    ++left; 
+                    --right;
+
+                    // pruning 5 - 去重
+                    while (left < right and nums[left] == nums[left-1]) ++left;
+                    while (left < right and nums[right] == nums[right + 1]) --right;    
+                }
+                else if (sum  < 0) ++left;
+                else --right;
+            }
+        }
+        return rets;
+    }
+};
+```
+
 ### 基础
 
 #### [59. Spiral Matrix II](https://leetcode.com/problems/spiral-matrix-ii/)
