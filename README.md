@@ -11,6 +11,9 @@
     + [27. Remove Element](#27-remove-element)
     + [977. Squares of a Sorted Array](#977-squares-of-a-sorted-array)
     + [209. Minimum Size Subarray Sum](#209-minimum-size-subarray-sum)
+    + [1. Two Sum](#1-two-sum)
+    + [15. 3Sum](#15-3sum)
+    + [18. 4Sum](#18-4sum)
   * [基础](#%E5%9F%BA%E7%A1%80)
     + [59. Spiral Matrix II](#59-spiral-matrix-ii)
 - [链表](#%E9%93%BE%E8%A1%A8)
@@ -30,7 +33,7 @@
     + [349. Intersection of Two Arrays](#349-intersection-of-two-arrays)
     + [350. Intersection of Two Arrays II](#350-intersection-of-two-arrays-ii)
     + [202. Happy Number](#202-happy-number)
-    + [1. Two Sum](#1-two-sum)
+    + [1. Two Sum](#1-two-sum-1)
 
 <!-- tocstop -->
 
