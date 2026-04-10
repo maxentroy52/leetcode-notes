@@ -379,6 +379,148 @@ public:
 };
 ```
 
+#### [18. 4Sum](https://leetcode.com/problems/4sum/description/)
+
+- 一刷
+    - 我的思路：基于3sum，再套一层，思路简单，但是最后TLE(261/294)
+    - 我优化了剪枝，但是最终还是没有全过
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> fourSum(vector<int>& nums, int target) {
+        vector<vector<int>> rets;
+        std::sort(nums.begin(), nums.end());    
+        int len = nums.size();
+
+        if (0 < nums[0] and target <= 0 ) return rets;
+        if (nums[len - 1] < 0 and target >= 0) return rets;
+        if (len >= 4) {
+            long long max = nums[len - 1] + nums[len - 2] + nums[len - 3] + nums[len - 4];
+            if (max < target) return rets;
+
+            long long min = nums[0] + nums[1] + nums[2] + nums[3];
+            if (target < min) return rets;
+        }
+
+
+        for (int first = 0; first < len - 3; ++first) {
+            if (0 < first and nums[first] == nums[first - 1]) continue;
+
+            for (int second = first + 1; second < len - 2; ++second) {
+                if (first + 1 < second and nums[second] == nums[second - 1]) continue;
+                int left = second + 1, right = len - 1;
+                while (left < right) {
+                    std::cout << first << "," << second << "," << left << "," << right << endl;
+                    long long sum = nums[first];
+                    sum += nums[second];
+                    sum += nums[left];
+                    sum += nums[right];
+
+                    if (sum == target) {
+                        vector<int> ret;
+                        ret.push_back(nums[first]);
+                        ret.push_back(nums[second]);
+                        ret.push_back(nums[left]);
+                        ret.push_back(nums[right]);
+                        rets.push_back(ret);
+
+                        ++left;
+                        --right;
+
+                        while (left < right and nums[left] == nums[left - 1]) ++left;
+                        while (left < right and nums[right] == nums[right + 1]) --right;
+                    }
+                    else if (sum < target) ++ left;
+                    else --right;
+                }
+            }
+        }
+        return rets;
+    }
+};
+```
+
+- 二刷
+    - 正解：求助了deepseek，给出了非常精彩的分析，一针见血指出问题。
+    - 主要问题
+        - 缺少对 first 和 second 的提前剪枝
+        - 即使数组已排序，当前最外层两重循环没有根据当前最小/最大可能和来判断是否继续。
+
+你的代码逻辑是对的，主要问题在于**剪枝不够充分**，导致在数据量大、target很大的情况下，`first` 和 `second` 循环做了太多不必要的遍历。
+
+优化思路
+
+- 在 `first` 循环中：
+- 计算当前 `nums[first]` 能得到的**最小四数和**：  
+  `min_sum = nums[first] + nums[first+1] + nums[first+2] + nums[first+3]`  
+  如果 `min_sum > target` → 后面更大，直接 `break`
+- 计算当前 `nums[first]` 能得到的**最大四数和**：  
+  `max_sum = nums[first] + nums[len-3] + nums[len-2] + nums[len-1]`  
+  如果 `max_sum < target` → 当前 `first` 太小，直接 `continue` 到下一个 `first`
+
+在 `second` 循环中：
+- 类似地，计算当前 `(first, second)` 组合的最小和 & 最大和，决定是否 `break` 或 `continue`
+
+还有一个需要注意的点：**剪枝2和剪枝4使用continue 而不是 break**
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> fourSum(vector<int>& nums, int target) {
+        vector<vector<int>> rets;
+        int len = nums.size();
+        if (len < 4) return rets;
+
+        std::sort(nums.begin(), nums.end());
+
+        for (int first = 0; first < len - 3; ++first) {
+            // 去重
+            if (0 < first and nums[first] == nums[first - 1]) continue;
+
+            // 剪枝1：first 当前最小的4sum
+            long long min1 = (long long)nums[first] + nums[first + 1] + nums[first + 2] + nums[first + 3];
+            if (target < min1) break;
+
+            // 剪枝2：first 当前最大的4sum
+            long long max1 = (long long)nums[first] + nums[len - 3] + nums[len - 2] + nums[len - 1];
+            if (max1 < target) continue;
+
+            for (int second = first + 1; second < len - 2; ++second) {
+                // 去重
+                if (first + 1 < second and nums[second] == nums[second - 1]) continue;
+
+                // 剪枝3: second当前最小的4sum
+                long long min2 = (long long)nums[first] + nums[second] + nums[second + 1] + nums[second + 2];
+                if (target < min2) break;
+
+                // 剪枝4：second当前最大的4sum
+                long long max2 = (long long)nums[first] + nums[second] + nums[len - 2] + nums[len - 1];
+                if (max2 < target) continue;
+
+                int left = second + 1, right = len - 1;
+                while (left < right) {
+                    long long sum = (long long)nums[first] + nums[second] + nums[left] + nums[right];
+                    if (sum == target) {
+                        vector<int> ret;
+                        ret.push_back(nums[first]); ret.push_back(nums[second]); ret.push_back(nums[left]); ret.push_back(nums[right]);
+
+                        ++left; --right;
+                        while (left < right and nums[left - 1] == nums[left]) ++left;
+                        while (left < right and nums[right + 1] == nums[right]) --right;
+
+                        rets.push_back(ret);
+                    } else if (sum < target) ++left;
+                    else --right;
+                }
+
+            }
+        }
+        return rets;
+    }
+};
+```
+
 ### 基础
 
 #### [59. Spiral Matrix II](https://leetcode.com/problems/spiral-matrix-ii/)
