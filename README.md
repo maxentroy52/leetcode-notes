@@ -34,6 +34,8 @@
     + [350. Intersection of Two Arrays II](#350-intersection-of-two-arrays-ii)
     + [202. Happy Number](#202-happy-number)
     + [1. Two Sum](#1-two-sum-1)
+    + [454. 4Sum II](#454-4sum-ii)
+    + [383. Ransom Note](#383-ransom-note)
 
 <!-- tocstop -->
 
@@ -377,6 +379,52 @@ public:
                 else --right;
             }
         }
+        return rets;
+    }
+};
+```
+
+- 三刷
+    - 思路：算法和4sum保持一致，剪枝。
+```cpp
+class Solution {
+public:
+    vector<vector<int>> threeSum(vector<int>& nums) {
+        vector<vector<int>> rets;
+        int len = nums.size();
+
+        if (nums.size() < len) return rets;
+        std::sort(nums.begin(), nums.end());
+
+        for (int first = 0; first < len - 2; ++first) {
+            // 去重
+            if (0 < first and nums[first - 1] == nums[first]) continue;
+
+            // 剪枝
+            int min = nums[first] + nums[first + 1] + nums[first + 2];
+            if (0 < min) break;
+
+            // 剪枝
+            int max = nums[first] + nums[len - 2] + nums[len - 1];
+            if (max < 0) continue;
+
+            int left = first + 1, right = len - 1;
+            while (left < right) {
+                int sum = nums[first] + nums[left] + nums[right];
+                if (sum == 0) {
+                    vector<int> ret;
+                    ret.push_back(nums[first]); ret.push_back(nums[left]); ret.push_back(nums[right]);
+                    rets.push_back(ret);
+
+                    ++left; --right;
+                    while (left < right and nums[left - 1] == nums[left]) ++left;
+                    while (left < right and nums[right + 1] == nums[right]) --right;
+                }
+                else if (sum < 0) ++left;
+                else --right;
+            }
+        }
+
         return rets;
     }
 };
@@ -1328,6 +1376,61 @@ public:
             }
         }    
         return {};
+    }
+};
+```
+
+#### [454. 4Sum II](https://leetcode.com/problems/4sum-ii/description/)
+
+- 一刷
+    - 正解：hashmap
+    - 规律：xSUM类型题目，如果涉及元素本身，用双指针。因为此时如果用hashmap，不好去重。其它则考虑用hashmap
+    - 比如，本题不涉及元素本身，如果用下标，不会出现重复的问题，所以首先考虑hashmap.
+
+```cpp
+class Solution {
+public:
+    int fourSumCount(vector<int>& nums1, vector<int>& nums2, vector<int>& nums3, vector<int>& nums4) {
+        int count = 0;
+        std::unordered_map<int, int> umap;
+        for (const auto& first : nums1) {
+            for (const auto& second : nums2) {
+                umap[first + second]++; 
+            }
+        }
+
+        for (const auto& third : nums3) {
+            for (const auto& fourth : nums4) {
+                auto it = umap.find(0 - third - fourth);
+                if (it != umap.end()) count += it->second;
+            }
+        }
+
+        return count;
+    }
+};
+```
+
+#### [383. Ransom Note](https://leetcode.com/problems/ransom-note/description/)
+
+- 一刷
+    - 我的思路：hashmap计数
+    - 最优解：剪枝 + 数组，这个办法更好，空间负责度可控。
+```cpp
+class Solution {
+public:
+    bool canConstruct(string ransomNote, string magazine) {
+        std::unordered_map<char, int> umap;
+        for (const auto& ch : magazine) umap[ch]++;
+
+        for (const auto& ch : ransomNote) {
+            auto it = umap.find(ch);
+            if (it == umap.end()) return false;
+            if (it->second == 0) return false;
+
+            it->second--;
+        }
+        return true;
     }
 };
 ```
