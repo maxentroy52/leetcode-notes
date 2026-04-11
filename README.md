@@ -36,6 +36,11 @@
     + [1. Two Sum](#1-two-sum-1)
     + [454. 4Sum II](#454-4sum-ii)
     + [383. Ransom Note](#383-ransom-note)
+- [字符串](#%E5%AD%97%E7%AC%A6%E4%B8%B2)
+  * [基础](#%E5%9F%BA%E7%A1%80-3)
+    + [344. Reverse String](#344-reverse-string)
+    + [541. Reverse String II](#541-reverse-string-ii)
+    + [151. Reverse Words in a String](#151-reverse-words-in-a-string)
 
 <!-- tocstop -->
 
@@ -1431,6 +1436,81 @@ public:
             it->second--;
         }
         return true;
+    }
+};
+```
+
+## 字符串
+
+### 基础
+
+#### [344. Reverse String](https://leetcode.com/problems/reverse-string/description/)
+
+- 一刷
+    - 我的思路：遍历一半，进行swap即可。注意循环条件
+```cpp
+class Solution {
+public:
+    void reverseString(vector<char>& s) {
+        for (int i = 0, k = s.size() - 1; i < s.size() / 2; ++i, --k) {
+            std::swap(s[i], s[k]);
+        }    
+    }
+};
+```
+
+#### [541. Reverse String II](https://leetcode.com/problems/reverse-string-ii/description/)
+
+- 一刷
+    - 我的思路：模拟实现逻辑即可。
+    - 注意点：注意下标校验。怎么工程代码下标校验的都挺好，一写算法题反而都不校验呢？
+```cpp
+class Solution {
+public:
+    string reverseStr(string s, int k) {
+        int len = s.size();
+        for (int start = 0; start < len ; start += (k * 2)) {
+            reverse(s, start, std::min(len, start + k));
+        }
+        return s;
+    }
+    void reverse(string& s, int b, int e) {
+        for (int i = b, k = e - 1; i < b + (e - b) / 2; ++i, --k) {
+            std::swap(s[i], s[k]);
+        }
+    }
+};
+```
+
+#### [151. Reverse Words in a String](https://leetcode.com/problems/reverse-words-in-a-string/description/)
+
+- 一刷
+    - 我的思路：模式识别
+```cpp
+class Solution {
+public:
+    string reverseWords(string s) {
+        int b = 0, e = s.size();
+        std::string ret;
+        while (b < e) {
+            int i = b;
+
+            // 识别起点
+            while (i < e and s[i] == ' ') ++i;
+            if (i == e) break;
+            b = i;
+            
+            // 识别终点
+            while (i < e and s[i] != ' ') ++i;
+
+            // 生成子串
+            auto token = s.substr(b, i - b);
+            if (ret.empty()) ret = token;
+            else ret = token + " " + ret;
+
+            b = i;
+        }
+        return ret;
     }
 };
 ```
