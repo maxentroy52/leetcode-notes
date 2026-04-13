@@ -50,6 +50,12 @@
     + [[]()](#)
     + [1047. Remove All Adjacent Duplicates In String](#1047-remove-all-adjacent-duplicates-in-string)
     + [150. Evaluate Reverse Polish Notation](#150-evaluate-reverse-polish-notation)
+- [二叉树](#%E4%BA%8C%E5%8F%89%E6%A0%91)
+  * [基本](#%E5%9F%BA%E6%9C%AC)
+    + [144. Binary Tree Preorder Traversal](#144-binary-tree-preorder-traversal)
+    + [94. Binary Tree Inorder Traversal](#94-binary-tree-inorder-traversal)
+    + [94. Binary Tree Inorder Traversal](#94-binary-tree-inorder-traversal-1)
+    + [145. Binary Tree Postorder Traversal](#145-binary-tree-postorder-traversal)
 
 <!-- tocstop -->
 
@@ -1896,6 +1902,139 @@ public:
             } else opnd.push(stoi(token));
         }
         return opnd.top();
+    }
+};
+```
+
+## 二叉树
+
+### 基本
+
+#### [144. Binary Tree Preorder Traversal](https://leetcode.com/problems/binary-tree-preorder-traversal/submissions/1977206534/)
+
+- 一刷
+    - 递归，不赘述
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> preorderTraversal(TreeNode* root) {
+        vector<int> ret;
+        preorder(root, ret);
+        return ret;
+    }
+    void preorder(TreeNode* root, vector<int>& res) {
+        if (!root) return;
+        res.push_back(root->val);
+        preorder(root->left, res);
+        preorder(root->right, res);
+    }
+};
+```
+
+#### [94. Binary Tree Inorder Traversal](https://leetcode.com/problems/binary-tree-inorder-traversal/)
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> inorderTraversal(TreeNode* root) {
+        vector<int> ret;
+        inorder(root, ret);
+        return ret;        
+    }
+    void inorder(TreeNode* root, vector<int>& res) {
+        if (!root) return;
+        inorder(root->left, res);
+        res.push_back(root->val);
+        inorder(root->right, res);
+    }
+};
+```
+
+#### [94. Binary Tree Inorder Traversal](https://leetcode.com/problems/binary-tree-inorder-traversal/)
+
+- 一刷
+    - 递归，不赘述
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> inorderTraversal(TreeNode* root) {
+        vector<int> ret;
+        inorder(root, ret);
+        return ret;        
+    }
+    void inorder(TreeNode* root, vector<int>& res) {
+        if (!root) return;
+        inorder(root->left, res);
+        res.push_back(root->val);
+        inorder(root->right, res);
+    }
+};
+```
+
+#### [145. Binary Tree Postorder Traversal](https://leetcode.com/problems/binary-tree-postorder-traversal/submissions/1977210284/)
+
+- 一刷
+    - 递归，不赘述
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> postorderTraversal(TreeNode* root) {
+        vector<int> ret;
+        postorder(root, ret);
+        return ret;
+    }
+    void postorder(TreeNode* root, vector<int>& res) {
+        if (!root) return;
+        postorder(root->left, res);
+        postorder(root->right, res);
+        res.push_back(root->val);
     }
 };
 ```
