@@ -41,6 +41,8 @@
     + [344. Reverse String](#344-reverse-string)
     + [541. Reverse String II](#541-reverse-string-ii)
     + [151. Reverse Words in a String](#151-reverse-words-in-a-string)
+    + [28. Find the Index of the First Occurrence in a String](#28-find-the-index-of-the-first-occurrence-in-a-string)
+    + [459. Repeated Substring Pattern](#459-repeated-substring-pattern)
 
 <!-- tocstop -->
 
@@ -1511,6 +1513,89 @@ public:
             b = i;
         }
         return ret;
+    }
+};
+```
+
+- 二刷
+    - 最优解：要求不增加额外空间，就地处理。
+    - 整体reverse，再reverse各个部分即可。
+    - 需要处理多余空格的情形，这个地方使用快慢指针。
+
+```cpp
+class Solution {
+public:
+    string reverseWords(string s) {
+        int len = s.size();
+        // 整体reverse
+        reverse(s.begin(), s.end());
+        int fast = 0, slow = 0;
+        while (fast < len) {
+            if (s[fast] == ' ') ++fast;
+            else {
+                // 处理不是第一个单词的情形
+                if (slow) s[slow++] = ' ';
+
+                // 处理单词
+                int i = fast;
+                int old_slow = slow;
+                while (i < len and s[i] != ' ') s[slow++] = s[i++];
+
+                // 局部reverse
+                reverse(s.begin() + old_slow, s.begin() + slow);
+                fast = i;
+            }
+        }
+        s.resize(slow);
+        return s;
+    }
+};
+```
+
+#### [28. Find the Index of the First Occurrence in a String](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/description/)
+
+- 一刷
+    - 我的思路：遍历
+```cpp
+class Solution {
+public:
+    int strStr(string haystack, string needle) {
+        if (haystack.size() < needle.size()) return -1;
+
+        for (int i = 0; i <= haystack.size() - needle.size(); ++i) {
+            bool match = true;
+            for (int k = 0; k < needle.size(); ++k) {
+                if (haystack[i + k] != needle[k]) {
+                    match = false; break;
+                }
+            }
+            if (match) return i;
+        }
+        return -1;
+    }
+};
+```
+
+#### [459. Repeated Substring Pattern](https://leetcode.com/problems/repeated-substring-pattern/description/)
+
+- 一刷
+    - 我的思路：暴力枚举子串
+    - 这里有个技巧是，不要比较，把子串都加起来，代码上好写一点
+
+```cpp
+class Solution {
+public:
+    bool repeatedSubstringPattern(string s) {
+        for (int sublen = s.size() / 2; sublen >= 1; --sublen) {
+            if (s.size() % sublen != 0) continue;
+            int n = s.size() / sublen;
+
+            auto substr = s.substr(0, sublen);
+            auto target = substr;
+            for (int i = 0; i < n - 1; ++i) target += substr;
+            if (target == s) return true;
+        }      
+        return false;  
     }
 };
 ```
