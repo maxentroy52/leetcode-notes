@@ -1825,7 +1825,7 @@ public:
  */
 ```
 
-#### []()
+#### [20. Valid Parentheses](https://leetcode.com/problems/valid-parentheses/)
 
 - 一刷
     - 我的思路：经典题目，栈来做就好。
@@ -1944,39 +1944,6 @@ public:
 ```
 
 #### [94. Binary Tree Inorder Traversal](https://leetcode.com/problems/binary-tree-inorder-traversal/)
-
-```cpp
-/**
- * Definition for a binary tree node.
- * struct TreeNode {
- *     int val;
- *     TreeNode *left;
- *     TreeNode *right;
- *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
- *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
- *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
- * };
- */
-class Solution {
-public:
-    vector<int> inorderTraversal(TreeNode* root) {
-        vector<int> ret;
-        inorder(root, ret);
-        return ret;        
-    }
-    void inorder(TreeNode* root, vector<int>& res) {
-        if (!root) return;
-        inorder(root->left, res);
-        res.push_back(root->val);
-        inorder(root->right, res);
-    }
-};
-```
-
-#### [94. Binary Tree Inorder Traversal](https://leetcode.com/problems/binary-tree-inorder-traversal/)
-
-- 一刷
-    - 递归，不赘述
 
 ```cpp
 /**
