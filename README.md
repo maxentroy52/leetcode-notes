@@ -43,6 +43,13 @@
     + [151. Reverse Words in a String](#151-reverse-words-in-a-string)
     + [28. Find the Index of the First Occurrence in a String](#28-find-the-index-of-the-first-occurrence-in-a-string)
     + [459. Repeated Substring Pattern](#459-repeated-substring-pattern)
+- [栈和队列](#%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97)
+  * [基础](#%E5%9F%BA%E7%A1%80-4)
+    + [232. Implement Queue using Stacks](#232-implement-queue-using-stacks)
+    + [225. Implement Stack using Queues](#225-implement-stack-using-queues)
+    + [[]()](#)
+    + [1047. Remove All Adjacent Duplicates In String](#1047-remove-all-adjacent-duplicates-in-string)
+    + [150. Evaluate Reverse Polish Notation](#150-evaluate-reverse-polish-notation)
 
 <!-- tocstop -->
 
@@ -1596,6 +1603,299 @@ public:
             if (target == s) return true;
         }      
         return false;  
+    }
+};
+```
+
+## 栈和队列
+
+### 基础
+
+#### [232. Implement Queue using Stacks](https://leetcode.com/problems/implement-queue-using-stacks/description/)
+
+- 一刷
+    - 我的思路：两个栈模拟即可
+```cpp
+class MyQueue {
+public:
+    stack<int> stk;
+    stack<int> helper;
+
+    void transfer(stack<int>& from, stack<int>& to) {
+        while (!from.empty()) {
+            to.push(from.top());
+            from.pop();
+        }
+    }
+
+    MyQueue() {
+        
+    }
+    
+    void push(int x) {
+        stk.push(x);
+    }
+    
+    int pop() {
+
+        transfer(stk, helper);
+        int res = helper.top();
+        helper.pop();
+        transfer(helper, stk);
+        return res;
+    }
+    
+    int peek() {
+        transfer(stk, helper);
+        int res = helper.top();
+        transfer(helper, stk);
+        return res;
+    }
+    
+    bool empty() {
+        return stk.empty();
+    }
+};
+
+/**
+ * Your MyQueue object will be instantiated and called as such:
+ * MyQueue* obj = new MyQueue();
+ * obj->push(x);
+ * int param_2 = obj->pop();
+ * int param_3 = obj->peek();
+ * bool param_4 = obj->empty();
+ */
+```
+
+- 二刷
+    - 最优解：上面的解法并非最优，数据结构设计是没问题的，肯定需要两个栈。
+    - 但对于这两个栈的关系，理解不同。
+        - 我的解法是，一个master，一个helper。helper是纯helper
+        - 但，最优解的思路是，他们是一个整体，这点挺秒的。
+            - 因为，in/out所涉及到的操作不同，并不需要每次都要transfer
+            - in是队列头，out是队列尾
+            - in/out完成各自的操作即可。
+        - 复用存量方法
+```cpp
+class MyQueue {
+public:
+    stack<int> in;
+    stack<int> out;
+    MyQueue() {
+        
+    }
+    
+    void push(int x) {
+        in.push(x);
+    }
+    
+    int pop() {
+        if (out.empty()) {
+            while (!in.empty()) {
+                out.push(in.top());
+                in.pop();
+            }
+        }
+
+        auto x = out.top();
+        out.pop();
+        return x;
+    }
+    
+    int peek() {
+        auto x = pop();
+        out.push(x);
+        return x;
+    }
+    
+    bool empty() {
+        return in.empty() and out.empty();
+    }
+};
+
+/**
+ * Your MyQueue object will be instantiated and called as such:
+ * MyQueue* obj = new MyQueue();
+ * obj->push(x);
+ * int param_2 = obj->pop();
+ * int param_3 = obj->peek();
+ * bool param_4 = obj->empty();
+ */
+```
+
+#### [225. Implement Stack using Queues](https://leetcode.com/problems/implement-stack-using-queues/description/)
+
+- 一刷
+    - 我的思路：这个题我意识到和上一到题不一样，这个题并不是in/out一体，而就是base and helper的关系
+    - 上一题， in其实是队列头，out是队列尾。这题没有这么会事，因为stk都是只能在一端操作。
+
+```cpp
+class MyStack {
+public:
+    queue<int> base;
+    MyStack() {
+        
+    }
+    
+    void push(int x) {
+        base.push(x);   
+    }
+    
+    int pop() {
+        queue<int> helper;
+        while (base.size() > 1) {
+            auto x = base.front();
+            helper.push(x);
+            base.pop();
+        }
+        auto x = base.back(); base.pop();
+        while (!helper.empty()) { 
+            base.push(helper.front());
+            helper.pop();
+         } 
+         return x;
+    }
+    
+    int top() {
+        return base.back();
+    }
+    
+    bool empty() {
+        return base.empty();
+    }
+};
+
+/**
+ * Your MyStack object will be instantiated and called as such:
+ * MyStack* obj = new MyStack();
+ * obj->push(x);
+ * int param_2 = obj->pop();
+ * int param_3 = obj->top();
+ * bool param_4 = obj->empty();
+ */
+```
+
+- 二刷
+    - 最优解：其实一个队列就够了
+    - pop n-1次，再插入队列，此时队列头就是要出队的元素
+```cpp
+class MyStack {
+public:
+    queue<int> base;
+    MyStack() {
+        
+    }
+    
+    void push(int x) {
+        base.push(x);   
+    }
+    
+    int pop() {
+        int n = base.size();
+        for (int i = 0; i < n - 1; ++i) {
+            base.push(base.front()); base.pop();
+        }
+        auto res = base.front();
+        base.pop();
+        return res;
+    }
+    
+    int top() {
+        return base.back();
+    }
+    
+    bool empty() {
+        return base.empty();
+    }
+};
+
+/**
+ * Your MyStack object will be instantiated and called as such:
+ * MyStack* obj = new MyStack();
+ * obj->push(x);
+ * int param_2 = obj->pop();
+ * int param_3 = obj->top();
+ * bool param_4 = obj->empty();
+ */
+```
+
+#### []()
+
+- 一刷
+    - 我的思路：经典题目，栈来做就好。
+    - 细节：右括号多，左括号多的两种情况需要考虑
+
+```cpp
+class Solution {
+public: 
+    bool isValid(string s) {
+        stack<char> stk;
+        for (const auto& ch : s) {
+            if (ch == ']' or ch == ')' or ch == '}') {
+                if (stk.empty()) return false;
+                auto left = stk.top(); stk.pop();
+                if (ch == ']' and left != '[') return false;
+                if (ch == ')' and left != '(') return false;
+                if (ch == '}' and left != '{') return false;
+            } else stk.push(ch);
+        }
+        return stk.empty();
+    }
+};
+```
+
+#### [1047. Remove All Adjacent Duplicates In String](https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string/)
+
+- 一刷
+    - 我的思路：相邻匹配的题目，都可以栈来做。因为栈方便拿pre.
+
+```cpp
+class Solution {
+public:
+    string removeDuplicates(string s) {
+        stack<char> stk;
+        for (const auto& ch : s) {
+            if (stk.empty()) { stk.push(ch); continue; }
+
+            auto pre = stk.top();
+            if (pre == ch) { stk.pop(); continue; }
+
+            stk.push(ch);
+        }
+
+        std::string ret;
+        while (!stk.empty()) {
+            auto ch = stk.top(); stk.pop();
+            ret = ch + ret;
+        }
+        return ret;
+    }
+};
+```
+
+#### [150. Evaluate Reverse Polish Notation](https://leetcode.com/problems/evaluate-reverse-polish-notation/description/)
+
+- 一刷
+    - 我的思路：学生时代经典题，不赘述
+
+```cpp
+class Solution {
+public:
+    int evalRPN(vector<string>& tokens) {
+        stack<int> opnd;
+        for (const auto& token : tokens) {
+            if (token == "+" or token == "-" or token == "*" or token == "/") {
+                auto right = opnd.top(); opnd.pop();
+                auto left = opnd.top(); opnd.pop();
+
+                if (token == "+") opnd.push(left + right);
+                else if (token == "-") opnd.push(left - right);
+                else if (token == "*") opnd.push(left * right);
+                else if (token == "/") opnd.push(left / right);
+
+            } else opnd.push(stoi(token));
+        }
+        return opnd.top();
     }
 };
 ```
