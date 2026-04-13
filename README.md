@@ -47,14 +47,13 @@
   * [基础](#%E5%9F%BA%E7%A1%80-4)
     + [232. Implement Queue using Stacks](#232-implement-queue-using-stacks)
     + [225. Implement Stack using Queues](#225-implement-stack-using-queues)
-    + [[]()](#)
+    + [20. Valid Parentheses](#20-valid-parentheses)
     + [1047. Remove All Adjacent Duplicates In String](#1047-remove-all-adjacent-duplicates-in-string)
     + [150. Evaluate Reverse Polish Notation](#150-evaluate-reverse-polish-notation)
 - [二叉树](#%E4%BA%8C%E5%8F%89%E6%A0%91)
   * [基本](#%E5%9F%BA%E6%9C%AC)
     + [144. Binary Tree Preorder Traversal](#144-binary-tree-preorder-traversal)
     + [94. Binary Tree Inorder Traversal](#94-binary-tree-inorder-traversal)
-    + [94. Binary Tree Inorder Traversal](#94-binary-tree-inorder-traversal-1)
     + [145. Binary Tree Postorder Traversal](#145-binary-tree-postorder-traversal)
 
 <!-- tocstop -->
