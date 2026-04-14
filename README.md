@@ -50,6 +50,8 @@
     + [20. Valid Parentheses](#20-valid-parentheses)
     + [1047. Remove All Adjacent Duplicates In String](#1047-remove-all-adjacent-duplicates-in-string)
     + [150. Evaluate Reverse Polish Notation](#150-evaluate-reverse-polish-notation)
+    + [239. Sliding Window Maximum](#239-sliding-window-maximum)
+    + [347. Top K Frequent Elements](#347-top-k-frequent-elements)
 - [二叉树](#%E4%BA%8C%E5%8F%89%E6%A0%91)
   * [基本](#%E5%9F%BA%E6%9C%AC)
     + [144. Binary Tree Preorder Traversal](#144-binary-tree-preorder-traversal)
@@ -1901,6 +1903,268 @@ public:
             } else opnd.push(stoi(token));
         }
         return opnd.top();
+    }
+};
+```
+
+#### [239. Sliding Window Maximum](https://leetcode.com/problems/sliding-window-maximum/)
+
+- 一刷
+    - 我的思路：暴力枚举window. 这题从题面上来说，并不难。
+    - 这题其实还挺好的，多种解法，考差了对多种数据结的使用。
+    - 这题的难点在于，window的状态，怎么保证。
+        - 最大数好球，搞一个堆即可，但是sliding的时候，移除元素，堆无法操作，因为堆只能操作堆顶。
+        - 所以，第一个解法，使用了tree-like data structure。即可以排序，又方便删除。
+        - ```std::multiset```可以排序，同时又可以删除，满足要求。
+```cpp
+class Solution {
+public:
+    vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+        vector<int> ret;
+        multiset<int> range;
+        for (int i = 0; i < nums.size(); ++i) {
+            range.insert(nums[i]);
+            
+            // 开始移除元素
+            if (i >= k) {
+                auto left = range.find(nums[i - k]);
+                range.erase( left );
+            }
+
+            // 增加range结果
+            if (i >= k - 1) ret.push_back( *range.rbegin() );
+        }
+        return ret;
+    }
+};
+```
+
+- 二刷
+    - 优化的思路
+        - 对比treeset的思路，之前的思路是，保持住range，然后在range里面找最大。
+        - 优化的思路不是这样，过程都一样。但是，不用保证window。
+        - 之前不用max_heap的原因在于，left找不到，因为max_heap只能操作top，而top不一定是left，所以无法删除left
+        - 这里的核心点在于：我这里需要的是window max，只要不影响max，其实left删不删不重要。
+        - [3,4,5,1]，这个case，插入1的时候，在max_heap中删不删1不重要。 
+```cpp
+class Solution {
+public:
+    vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+        // [num, idx]
+        priority_queue<pair<int, int>> max_heap;    
+    
+        vector<int> ret;
+
+        for (int i = 0; i < nums.size(); ++i) {
+            max_heap.emplace(nums[i], i);
+            
+            // 开始移除元素
+            // 不是要真的移除left
+            // 只要left不影响max即可
+            if (i >= k) {
+                while (!max_heap.empty() and max_heap.top().second <= i - k) max_heap.pop();
+            }
+
+            // 增加range结果
+            if (i >= k - 1) ret.push_back( max_heap.top().first );
+        }
+
+        return ret;
+    }
+};
+```
+
+- 三刷
+    - 最优解
+        - 其实这三种解法，一路做过来，就发现最优解比较好理解了。
+        - 在二刷的时候，我已经意识到，没有必要保留整个range，max_heap能保持有效max即可。
+        - 最优解这里也是类似的办法
+
+```cpp
+class Solution {
+public:
+    vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+        std::vector<int> ret;
+        std::deque<int> desc_queue;
+        for (int i = 0; i < nums.size(); ++i) {
+            // 移除元素
+            if (!desc_queue.empty() and desc_queue.front() == i - k) desc_queue.pop_front();
+            
+            // 增加元素
+            while ( !desc_queue.empty() and nums[desc_queue.back()] <= nums[i] ) desc_queue.pop_back();
+            desc_queue.push_back(i);
+
+            // 记录结果
+            if (i >= k - 1) ret.push_back(nums[desc_queue.front()]);
+        }
+        return ret;
+    }
+};
+```
+
+deepseek给了非常清晰的解答，参考。核心就是用一个单调队列，存下标，因为下标需要校验有效性。只存可能是最大值的下标即可。我觉得跟max_heap一个思路，只不过这个数据结构，时间性能更好。
+
+这个题还是不错的，循序渐进，练到了多种数据结构，其实工作中并不常见，起码我一个都没用过。
+
+The key insight: **We only need to keep potential maximum candidates in decreasing order**. If we have indices `i < j` and `nums[i] <= nums[j]`, then `nums[i]` will NEVER be the maximum for any window that includes `j` (because `j` is larger and will stay in the window longer).
+
+1. Maintain a **deque that stores indices** (not values)
+2. The deque is always **decreasing** in terms of values (nums[deque[0]] is largest)
+3. For each new element at index `i`:
+   - **Remove from front**: Remove indices that are out of current window (index <= i-k)
+   - **Remove from back**: While the back element's value <= nums[i], pop it (they're useless now)
+   - **Add current index** to the back
+   - **Record answer**: The front of deque is the maximum for current window
+
+1. Removing from Front (Window Boundary)
+```cpp
+if (!dq.empty() && dq.front() == i - k)
+    dq.pop_front();
+```
+- Window covers indices `[i-k+1, i]`
+- Any index <= `i-k` is out
+- Since indices increase, we only need to check the front (oldest index)
+
+2. Removing from Back (Maintaining Decreasing Order)
+```cpp
+while (!dq.empty() && nums[dq.back()] <= nums[i])
+    dq.pop_back();
+```
+This is the **most important operation**. Why remove smaller elements?
+
+**Example**: Window has `[5, 3]` and new element `4` arrives
+- Deque currently: `[5(index0), 3(index1)]`
+- New element `4` at index 2
+- Compare `3 <= 4`: yes, remove 3
+- Now deque: `[5(index0)]`
+- Compare `5 <= 4`: no, stop
+- Add 4: deque becomes `[5(index0), 4(index2)]`
+
+The deque maintains a **monotonically decreasing** sequence of values. This property ensures:
+- Front is always maximum in current window
+- All elements in deque are potential maximums for future windows
+- No useless elements are stored
+
+```cpp
+class Solution {
+public:
+    vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+        vector<int> result;
+        deque<int> dq; // stores INDICES, not values
+        
+        for (int i = 0; i < nums.size(); i++) {
+            // Step 1: Remove indices that are out of current window
+            // Window covers [i-k+1, i]
+            // If front index is exactly i-k, it's the one leaving
+            if (!dq.empty() && dq.front() == i - k) {
+                dq.pop_front();
+            }
+            
+            // Step 2: Remove from back all indices whose values are <= current
+            // They can never be maximum for any window containing i
+            while (!dq.empty() && nums[dq.back()] <= nums[i]) {
+                dq.pop_back();
+            }
+            
+            // Step 3: Add current index
+            dq.push_back(i);
+            
+            // Step 4: Record result once we have a full window
+            if (i >= k - 1) {
+                result.push_back(nums[dq.front()]);
+            }
+        }
+        
+        return result;
+    }
+};
+```
+
+#### [347. Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/submissions/1978096715/)
+
+- 一刷
+    - 我的思路：这题其实在工作中挺常见的，常规处理即可
+```cpp
+class Solution {
+public:
+    vector<int> topKFrequent(vector<int>& nums, int k) {
+        std::unordered_map<int, int> umap;
+        for (const auto& num : nums) umap[num]++;
+
+        struct Node {
+            int val = 0;
+            int cnt = 0;
+            Node() = default;
+            Node(int v, int c) : val(v), cnt(c) {}
+            bool operator<(const Node& rhs) const { return cnt > rhs.cnt; }
+        };
+        std::vector<Node> counter; counter.reserve(umap.size());
+        for (const auto& [val, cnt] : umap) counter.emplace_back(val, cnt);
+
+        std::sort(counter.begin(), counter.end());
+
+        vector<int> ret; ret.reserve(k);
+        for (int i = 0; i < k; ++i)  {
+            ret.push_back(counter[i].val);
+        }
+        return ret;
+    }
+};
+```
+
+- 二刷
+    - max_heap
+```cpp
+class Solution {
+public:
+    vector<int> topKFrequent(vector<int>& nums, int k) {
+        std::unordered_map<int, int> umap;
+        for (const auto& num : nums) umap[num]++;
+
+        priority_queue<std::pair<int, int>> max_heap;
+        for (const auto& [val, cnt] : umap) {
+            // 这里cnt在前
+            max_heap.emplace(cnt, val);
+        }
+
+        vector<int> ret; ret.reserve(k);
+        while (k-- and !max_heap.empty()) {
+            ret.push_back(max_heap.top().second);
+            max_heap.pop();
+        }
+        return ret;
+    }
+};
+```
+
+- 三刷
+    - 桶排序
+    - 这个题，我觉得桶排序的思路也挺好的，有一些巧思在里面。
+    - 首先，cnt上限不会大于数组的长度，所以buckets的上限确定。
+    - 其次，key是cnt, val是放一个代表元素进来。因为不同元素val可能具有相同的频次。
+```cpp
+class Solution {
+public:
+    vector<int> topKFrequent(vector<int>& nums, int k) {
+        std::unordered_map<int, int> umap;
+        for (const auto& num : nums) umap[num]++;
+
+        // 建立桶索引 key-cnt value: num1, num2, ...
+        // 不同num可能出现频次一样，放一个代表即可
+        vector<vector<int>> buckets(nums.size() + 1);
+        for (const auto& [val, cnt] : umap) {
+            buckets[cnt].push_back(val);
+        }
+
+        int res = 0;
+        vector<int> ret; ret.reserve(k);
+        for (int i = buckets.size() - 1; i >= 0; --i) {
+            for (int c = 0; c < buckets[i].size(); ++c) {
+                ret.push_back(buckets[i][c]); res++;
+                if (res == k) return ret;
+            }
+        }
+        return ret;
     }
 };
 ```
