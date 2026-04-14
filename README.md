@@ -59,6 +59,10 @@
     + [145. Binary Tree Postorder Traversal](#145-binary-tree-postorder-traversal)
     + [102. Binary Tree Level Order Traversal](#102-binary-tree-level-order-traversal)
     + [107. Binary Tree Level Order Traversal II](#107-binary-tree-level-order-traversal-ii)
+    + [199. Binary Tree Right Side View](#199-binary-tree-right-side-view)
+    + [637. Average of Levels in Binary Tree](#637-average-of-levels-in-binary-tree)
+    + [429. N-ary Tree Level Order Traversal](#429-n-ary-tree-level-order-traversal)
+    + [515. Find Largest Value in Each Tree Row](#515-find-largest-value-in-each-tree-row)
 
 <!-- tocstop -->
 
@@ -2461,6 +2465,170 @@ public:
         }
         std::vector<std::vector<int>> final(ret.begin(), ret.end());
         return final;
+    }
+};
+```
+
+#### [199. Binary Tree Right Side View](https://leetcode.com/problems/binary-tree-right-side-view/)
+
+- 一刷
+    - 我的思路：层序，访问最后一个节点即可
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> rightSideView(TreeNode* root) {
+        queue<TreeNode*> que;
+        if (root) que.push(root);
+        vector<int> ret;
+        while (!que.empty()) {
+            int que_size = que.size();
+            ret.push_back(que.back()->val); // 访问本层最后一个节点
+            for (int i = 0; i < que_size; ++i) {
+                auto node = que.front(); que.pop();
+                if (node->left) que.push(node->left);
+                if (node->right) que.push(node->right);
+            }
+        }
+        return ret;
+    }
+};
+```
+
+#### [637. Average of Levels in Binary Tree](https://leetcode.com/problems/average-of-levels-in-binary-tree/submissions/1978508476/)
+
+- 一刷
+    - 层序遍历，统计
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<double> averageOfLevels(TreeNode* root) {
+        vector<double> ret;
+        queue<TreeNode*> que;
+        if (root) que.push(root);
+        while (!que.empty()) {
+            auto que_size = que.size();
+            double sum = 0.0;
+            for (int i = 0; i < que_size; ++i) {
+                auto node = que.front(); que.pop();
+                sum += node->val;
+                if (node->left) que.push(node->left);
+                if (node->right) que.push(node->right);
+            }
+            ret.push_back(sum / que_size);
+        }
+        return ret;   
+    }
+};
+```
+
+#### [429. N-ary Tree Level Order Traversal](https://leetcode.com/problems/n-ary-tree-level-order-traversal/)
+
+- 一刷
+    - 思路：层序遍历
+
+```cpp
+/*
+// Definition for a Node.
+class Node {
+public:
+    int val;
+    vector<Node*> children;
+
+    Node() {}
+
+    Node(int _val) {
+        val = _val;
+    }
+
+    Node(int _val, vector<Node*> _children) {
+        val = _val;
+        children = _children;
+    }
+};
+*/
+
+class Solution {
+public:
+    vector<vector<int>> levelOrder(Node* root) {
+        vector<vector<int>> ret;
+        queue<Node*> que;
+        if (root) que.push(root);
+        while (!que.empty()) {
+            int que_size = que.size();
+            vector<int> level;
+            for (int i = 0; i < que_size; ++i) {
+                auto node = que.front(); que.pop();
+                level.push_back(node->val);
+                for (auto& child : node->children) {
+                    if (child) que.push(child);
+                }
+            }
+            ret.push_back(level);
+        }
+        return ret;
+    }
+};
+```
+
+#### [515. Find Largest Value in Each Tree Row](https://leetcode.com/problems/find-largest-value-in-each-tree-row/)
+
+- 一刷
+    - 思路：层序遍历
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> largestValues(TreeNode* root) {
+        vector<int> ret;
+        queue<TreeNode*> que;
+        if (root) que.push(root);
+        while (!que.empty()) {
+            int que_size = que.size();
+            int max = INT_MIN;
+            for (int i = 0; i < que_size; ++i) {
+                auto node = que.front(); que.pop();
+                max = std::max(max, node->val);
+                if (node->left) que.push(node->left);
+                if (node->right) que.push(node->right);
+            }
+            ret.push_back(max);
+        }
+        return ret;
     }
 };
 ```
