@@ -57,6 +57,8 @@
     + [144. Binary Tree Preorder Traversal](#144-binary-tree-preorder-traversal)
     + [94. Binary Tree Inorder Traversal](#94-binary-tree-inorder-traversal)
     + [145. Binary Tree Postorder Traversal](#145-binary-tree-postorder-traversal)
+    + [102. Binary Tree Level Order Traversal](#102-binary-tree-level-order-traversal)
+    + [107. Binary Tree Level Order Traversal II](#107-binary-tree-level-order-traversal-ii)
 
 <!-- tocstop -->
 
@@ -2206,8 +2208,45 @@ public:
 };
 ```
 
+- 二刷
+    - 非递归思路
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> preorderTraversal(TreeNode* root) {
+        vector<int> ret;
+        stack<TreeNode*> stk;
+
+        if (root) stk.push(root);
+
+        while (!stk.empty()) {
+            auto cur = stk.top(); stk.pop();
+            ret.push_back(cur->val);
+            if (cur->right) stk.push(cur->right);
+            if (cur->left) stk.push(cur->left);
+        }
+
+        return ret;
+    }
+};
+```
+
+
 #### [94. Binary Tree Inorder Traversal](https://leetcode.com/problems/binary-tree-inorder-traversal/)
 
+- 一刷
+    - 递归，不赘述
 ```cpp
 /**
  * Definition for a binary tree node.
@@ -2232,6 +2271,43 @@ public:
         inorder(root->left, res);
         res.push_back(root->val);
         inorder(root->right, res);
+    }
+};
+```
+
+- 二刷
+    - 非递归思路
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> inorderTraversal(TreeNode* root) {
+        stack<TreeNode*> stk;
+        vector<int> ret;
+
+        auto cur = root;
+        while (cur or !stk.empty()) {
+            if (cur) {
+                stk.push(cur);
+                cur = cur->left;
+            } else {
+                cur = stk.top(); stk.pop();
+                ret.push_back(cur->val);
+                cur = cur->right;
+            }
+        }
+
+        return ret;
     }
 };
 ```
@@ -2265,6 +2341,126 @@ public:
         postorder(root->left, res);
         postorder(root->right, res);
         res.push_back(root->val);
+    }
+};
+```
+
+- 二刷
+    - 非递归
+    - 插入的顺序别错了。不管哪种遍历，都是left and right
+    - 所以，插入时，都是right and left.
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> postorderTraversal(TreeNode* root) {
+        vector<int> ret;
+        stack<pair<TreeNode*, bool>> stk;
+        
+        if (root) stk.push({root, false});
+        while (!stk.empty()) {
+            auto [cur, visited] = stk.top(); stk.pop();
+            if (visited) {
+                ret.push_back(cur->val);
+            }
+            else {
+                stk.push({cur, true});
+                if (cur->right) stk.push( {cur->right, false} );
+                if (cur->left) stk.push( {cur->left, false} );
+            }
+        }
+        
+        return ret;
+    }
+};
+```
+
+#### [102. Binary Tree Level Order Traversal](https://leetcode.com/problems/binary-tree-level-order-traversal/description/)
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        queue<TreeNode*> que;
+        vector<vector<int>> ret;
+        if (root) que.push(root);
+
+        while (!que.empty()) {
+            int level_size = que.size(); vector<int> level; level.reserve(level_size);
+            for (int i = 0; i < level_size; ++i) {
+                auto node = que.front(); que.pop();
+                level.push_back(node->val);
+                if (node->left) que.push(node->left);
+                if (node->right) que.push(node->right);
+            }
+            ret.push_back(level);
+        }
+
+        return ret;
+    }
+};
+```
+
+#### [107. Binary Tree Level Order Traversal II](https://leetcode.com/problems/binary-tree-level-order-traversal-ii/description/)
+
+- 一刷
+    - 我的思路：level-order，存储的时候，用deque，插在头部即可
+    - 其它解：正常遍历，最后reverse.
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<vector<int>> levelOrderBottom(TreeNode* root) {
+        deque<vector<int>> ret;
+        queue<TreeNode*> que;
+        if (root) que.push(root);
+
+        while (!que.empty()) {
+            int level_size = que.size();
+            vector<int> level; level.reserve(level_size);
+            for (int i = 0; i < level_size; ++i) {
+                auto node = que.front(); que.pop();
+                level.push_back(node->val);
+                if (node->left) que.push(node->left);
+                if (node->right) que.push(node->right);
+            }
+            ret.push_front(level);
+        }
+        std::vector<std::vector<int>> final(ret.begin(), ret.end());
+        return final;
     }
 };
 ```
