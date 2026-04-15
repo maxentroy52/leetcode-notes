@@ -66,6 +66,7 @@
     + [116. Populating Next Right Pointers in Each Node](#116-populating-next-right-pointers-in-each-node)
     + [117. Populating Next Right Pointers in Each Node II](#117-populating-next-right-pointers-in-each-node-ii)
     + [104. Maximum Depth of Binary Tree](#104-maximum-depth-of-binary-tree)
+    + [111. Minimum Depth of Binary Tree](#111-minimum-depth-of-binary-tree)
 
 <!-- tocstop -->
 
@@ -2787,6 +2788,73 @@ public:
             ++ret;
         }
         return ret;
+    }
+};
+```
+
+#### [111. Minimum Depth of Binary Tree](https://leetcode.com/problems/minimum-depth-of-binary-tree/)
+
+- 一刷
+    - 我的思路：深度都是dfs的范畴
+    - 递归的理解还是比较抽象的，从根节点理解解法即可
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int minDepth(TreeNode* root) {
+        if (!root) return 0;
+        if (!root->left) return 1 + minDepth(root->right);
+        if (!root->right) return 1 + minDepth(root->left);
+        return 1 + min( minDepth(root->left), minDepth(root->right) );
+        
+    }
+};
+```
+
+- 二刷
+    - 思路：层序，第一个叶子所在层数，就是最小层
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int minDepth(TreeNode* root) {
+        queue<TreeNode*> que;
+        if (root) que.push(root);
+
+        int level = 0;
+        while (!que.empty()) {
+            int que_size = que.size();
+            for (int i = 0; i < que_size; ++i) {
+                auto node = que.front(); que.pop();
+                if (node->left == nullptr and node->right == nullptr) return level + 1;
+                if (node->left) que.push(node->left);
+                if (node->right) que.push(node->right);
+            }
+            ++level;
+        }
+        return level;
     }
 };
 ```
