@@ -67,6 +67,10 @@
     + [117. Populating Next Right Pointers in Each Node II](#117-populating-next-right-pointers-in-each-node-ii)
     + [104. Maximum Depth of Binary Tree](#104-maximum-depth-of-binary-tree)
     + [111. Minimum Depth of Binary Tree](#111-minimum-depth-of-binary-tree)
+    + [226. Invert Binary Tree](#226-invert-binary-tree)
+    + [101. Symmetric Tree](#101-symmetric-tree)
+    + [222. Count Complete Tree Nodes](#222-count-complete-tree-nodes)
+    + [110. Balanced Binary Tree](#110-balanced-binary-tree)
 
 <!-- tocstop -->
 
@@ -2855,6 +2859,255 @@ public:
             ++level;
         }
         return level;
+    }
+};
+```
+
+#### [226. Invert Binary Tree](https://leetcode.com/problems/invert-binary-tree/) 
+
+- 一刷
+    - 我的思路：递归处理，但这里有技巧。本质是基于遍历算法来做，采用递归遍历即可。
+    - 但，唯独中序遍历不行。这里要理解
+    - swap/left/right, right
+    - left/right/swap, right
+    - left/swap/right, wrong。这里，左子树处理完了，换到右边，再处理右边。左边就漏了
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* invertTree(TreeNode* root) {
+        if (!root) return root;
+        swap(root->left, root->right);
+        invertTree(root->left);
+        invertTree(root->right);
+        return root;
+    }
+}; 
+```
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* invertTree(TreeNode* root) {
+        if (!root) return root;
+        invertTree(root->left);
+        invertTree(root->right);
+        swap(root->left, root->right);
+        return root;
+    }
+};
+```
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* invertTree(TreeNode* root) {
+        if (!root) return root;
+        invertTree(root->left);
+        swap(root->left, root->right);
+        invertTree(root->left); // 这么写是对的，标准的中序是处理右子树
+        return root;
+    }
+};
+```
+
+#### [101. Symmetric Tree](https://leetcode.com/problems/symmetric-tree/)
+
+- 一刷
+    - 正解：这个题的难点在于，递归的写法跟之前有区别。
+        - 不能把左右子树单独当做整体处理，即以往的递归都是单独处理左右子树。所以函数接口就一个tree pointer.
+        - 本题是需要把左右子树，放在一起处理，所以，接口是两个指针
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    bool isSymmetric(TreeNode* root) {
+        if (!root) return true;
+        return compare(root->left, root->right);
+    }
+    bool compare(TreeNode* left, TreeNode* right) {
+        if (left == nullptr and right == nullptr) return true;
+        else if (left != nullptr and right == nullptr) return false;
+        else if (left == nullptr and right != nullptr) return false;
+        else if (left->val != right->val) return false;
+
+        return compare(left->left, right->right) and compare(left->right, right->left);
+    }
+};
+```
+
+#### [222. Count Complete Tree Nodes](https://leetcode.com/problems/count-complete-tree-nodes/description/)
+
+- 一刷
+    - 我的思路：这个题我觉得和完全二叉树没啥关系，preorder遍历即可
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int countNodes(TreeNode* root) {
+        if (!root) return 0;
+        int ret = 1;
+        ret += countNodes(root->left);
+        ret += countNodes(root->right);
+        return ret;
+    }
+};
+```
+
+#### [110. Balanced Binary Tree](https://leetcode.com/problems/balanced-binary-tree/description/)
+
+- 一刷
+    - 次优解
+        - 一开始没想到递归求解，是因为左右子树的高度差满足是不够的，左右子树内部还需要满足。
+        - 思路上，如果没解法，就直接往遍历上靠就好。
+        - 是不是可以这么理解，遍历所有的节点，如果左右子树都满足，是不是就没问题了。
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    bool isBalanced(TreeNode* root) {
+        if (!root) return true;
+
+        if ( abs( depth(root->left) - depth(root->right) ) > 1 ) return false; // weired，访问根节点。但此时用的是根节点的左右孩子，本质还是访问根节点
+        return isBalanced(root->left) and isBalanced(root->right);  
+    }
+    int depth(TreeNode* root) {
+        if (!root) return 0;
+        else return 1 + std::max( depth(root->left), depth(root->right) );
+    }
+};
+```
+
+- 二刷
+
+你的思路本质：自顶向下（Top-down）
+- 你的代码逻辑是：
+    - 检查当前节点：左右子树高度差 ≤ 1？
+    - 如果满足，递归检查左子树是否平衡
+    - 递归检查右子树是否平衡
+
+所以，子树的高度会被反复计算。
+
+更优解法的思维：自底向上（Bottom-up）
+核心转变：不让每个节点独立计算深度，而是让深度计算和平衡检查同时进行，一次遍历完成。
+
+```cpp
+int dfs(TreeNode* root) {
+    if (!root) return 0;
+    int left = dfs(root->left);
+    if (left == -1) return -1;   // 左子树已经不平衡，直接返回
+    int right = dfs(root->right);
+    if (right == -1) return -1;  // 右子树已经不平衡
+    if (abs(left - right) > 1) return -1;
+    return 1 + max(left, right);
+}
+```
+
+这个代码在做什么？
+- 后序遍历：先走到最左下的叶子，然后向上返回。
+    - 返回值有两个角色：
+    - 如果是正常数字 → 表示这棵树的高度
+    - 如果是 -1 → 表示这棵树不平衡（“坏消息”向上传递）
+- 一旦发现不平衡，立即“短路”：不再继续检查其他分支。
+
+引入-1是个非常秒的解法， 深度和判断一起做。
+
+这个题，两种做法，本质是先序和后序的差异，top-down vs bottom up。所以，本题很有启发性，主要是洞悉了先序和后序的差异
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    bool isBalanced(TreeNode* root) {
+        return dfs(root) != -1;
+    }
+    int dfs(TreeNode* root) {
+        if (!root) return 0;
+
+        int left = dfs(root->left);
+        if (left == -1) return -1;
+
+        int right = dfs(root->right);
+        if (right == -1) return -1;
+
+        if ( abs(left - right) > 1 ) return -1;
+        return 1 + max(left, right);
     }
 };
 ```
