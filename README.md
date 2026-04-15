@@ -63,6 +63,9 @@
     + [637. Average of Levels in Binary Tree](#637-average-of-levels-in-binary-tree)
     + [429. N-ary Tree Level Order Traversal](#429-n-ary-tree-level-order-traversal)
     + [515. Find Largest Value in Each Tree Row](#515-find-largest-value-in-each-tree-row)
+    + [116. Populating Next Right Pointers in Each Node](#116-populating-next-right-pointers-in-each-node)
+    + [117. Populating Next Right Pointers in Each Node II](#117-populating-next-right-pointers-in-each-node-ii)
+    + [104. Maximum Depth of Binary Tree](#104-maximum-depth-of-binary-tree)
 
 <!-- tocstop -->
 
@@ -2627,6 +2630,161 @@ public:
                 if (node->right) que.push(node->right);
             }
             ret.push_back(max);
+        }
+        return ret;
+    }
+};
+```
+
+#### [116. Populating Next Right Pointers in Each Node](https://leetcode.com/problems/populating-next-right-pointers-in-each-node/description/)
+
+- 一刷
+    - 我的思路：层序遍历。不过我这个题我觉得出的挺有意思，需要结合链表的知识。
+
+```cpp
+/*
+// Definition for a Node.
+class Node {
+public:
+    int val;
+    Node* left;
+    Node* right;
+    Node* next;
+
+    Node() : val(0), left(NULL), right(NULL), next(NULL) {}
+
+    Node(int _val) : val(_val), left(NULL), right(NULL), next(NULL) {}
+
+    Node(int _val, Node* _left, Node* _right, Node* _next)
+        : val(_val), left(_left), right(_right), next(_next) {}
+};
+*/
+
+class Solution {
+public:
+    Node* connect(Node* root) {
+        queue<Node*> que;
+        if (root) que.push(root);
+        while (!que.empty()) {
+            int que_size = que.size();
+            Node* pre = nullptr;
+            for (int i = 0; i < que_size; ++i) {
+                auto node = que.front(); que.pop();
+                if (pre) pre->next = node;
+                if (node->left) que.push(node->left);
+                if (node->right) que.push(node->right);
+
+                pre = node;
+            }
+            pre->next = nullptr;
+        }
+        return root;
+    }
+};
+```
+
+#### [117. Populating Next Right Pointers in Each Node II](https://leetcode.com/problems/populating-next-right-pointers-in-each-node-ii/submissions/1978808914/)
+
+- 一刷
+    - 我的思路：从层序遍历的角度来说，这个题跟116确实一模一样。
+
+```cpp
+/*
+// Definition for a Node.
+class Node {
+public:
+    int val;
+    Node* left;
+    Node* right;
+    Node* next;
+
+    Node() : val(0), left(NULL), right(NULL), next(NULL) {}
+
+    Node(int _val) : val(_val), left(NULL), right(NULL), next(NULL) {}
+
+    Node(int _val, Node* _left, Node* _right, Node* _next)
+        : val(_val), left(_left), right(_right), next(_next) {}
+};
+*/
+
+class Solution {
+public:
+    Node* connect(Node* root) {
+        queue<Node*> que;
+        if (root) que.push(root);
+        while (!que.empty()) {
+            int que_size = que.size();
+            Node* pre = nullptr;
+            for (int i = 0; i < que_size; ++i) {
+                auto node = que.front(); que.pop();
+                if (pre) pre->next = node;
+                if (node->left) que.push(node->left);
+                if (node->right) que.push(node->right);
+
+                pre = node;
+            }
+            pre->next = nullptr;
+        }
+        return root;        
+    }
+};
+```
+
+#### [104. Maximum Depth of Binary Tree](https://leetcode.com/problems/maximum-depth-of-binary-tree/description/)
+
+- 一刷
+    - 我的思路：求深度，dfs
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int maxDepth(TreeNode* root) {
+        if (!root) return 0;
+        return 1 + std::max( maxDepth(root->left), maxDepth(root->right) );
+    }
+};
+```
+
+- 二刷
+    - 思路：用层序遍历也行。
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int maxDepth(TreeNode* root) {
+        queue<TreeNode*> que;
+        int ret = 0;
+        if (root) que.push(root);
+        while (!que.empty()) {
+            int que_size = que.size();
+            for (int i = 0; i < que_size; ++i) {
+                auto node = que.front(); que.pop();
+                if (node->left) que.push(node->left);
+                if (node->right) que.push(node->right);
+            }
+            ++ret;
         }
         return ret;
     }
