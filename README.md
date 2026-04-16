@@ -71,6 +71,8 @@
     + [101. Symmetric Tree](#101-symmetric-tree)
     + [222. Count Complete Tree Nodes](#222-count-complete-tree-nodes)
     + [110. Balanced Binary Tree](#110-balanced-binary-tree)
+    + [257. Binary Tree Paths](#257-binary-tree-paths)
+    + [404. Sum of Left Leaves](#404-sum-of-left-leaves)
 
 <!-- tocstop -->
 
@@ -3108,6 +3110,103 @@ public:
 
         if ( abs(left - right) > 1 ) return -1;
         return 1 + max(left, right);
+    }
+};
+```
+
+#### [257. Binary Tree Paths](https://leetcode.com/problems/binary-tree-paths/)
+
+- 一刷
+    - 我的思路：我有搜索的基础，所以做起来简单点。
+    - 虽然是二叉树，有点关系，但关系不大。代码的框架是搜索的框架。
+    - 有一点注意，边界是判断叶子，不是空指针
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<string> binaryTreePaths(TreeNode* root) {
+        if (!root) return {};
+
+        string path; vector<string> ret;
+        preorder(root, path, ret);
+        return ret;
+    }
+
+    void preorder(TreeNode* root, string& path, vector<string>& ret) {
+        string suffix = to_string(root->val); 
+        if (!root->left and !root->right) { 
+            path += suffix;
+            ret.push_back(path); 
+            // 返回前需要回溯
+            backtracing(suffix, path);
+            return; 
+        }
+
+        suffix += "->";
+        path += suffix; 
+
+        if (root->left) preorder(root->left, path, ret);
+        if (root->right) preorder(root->right, path, ret);
+
+        // 返回前需要回溯
+        backtracing(suffix, path);
+        return;
+    }
+
+
+    void backtracing(const string& suffix, string& path) {
+        for (int i = 0 ; i < suffix.size(); ++i) path.pop_back();
+    }
+};
+```
+
+#### [404. Sum of Left Leaves](https://leetcode.com/problems/sum-of-left-leaves/submissions/1979963156/)
+
+- 一刷
+    - 我的思路：这个题不难，灵活点处理。
+    - 做的多了，遍历的时候，有两种条件
+        - 一是，判断到空
+        - 而是，不判断到空，判断到叶子
+    - 这两种情况，看题目需要，灵活处理。
+    - 这个题不需要回溯
+    
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int sumOfLeftLeaves(TreeNode* root) {
+           vector<int> ret;
+           preorder(root, ret, false);
+           return accumulate(ret.begin(), ret.end(), 0);
+    }
+    void preorder(TreeNode* root, vector<int>& ret, bool is_left) {
+        if (!root->left and !root->right and is_left) {
+            ret.push_back(root->val);
+        }
+
+        if (root->left) preorder(root->left, ret, true);
+        if (root->right) preorder(root->right, ret, false);
     }
 };
 ```
