@@ -73,6 +73,7 @@
     + [110. Balanced Binary Tree](#110-balanced-binary-tree)
     + [257. Binary Tree Paths](#257-binary-tree-paths)
     + [404. Sum of Left Leaves](#404-sum-of-left-leaves)
+    + [513. Find Bottom Left Tree Value](#513-find-bottom-left-tree-value)
 
 <!-- tocstop -->
 
@@ -2402,6 +2403,9 @@ public:
 
 #### [102. Binary Tree Level Order Traversal](https://leetcode.com/problems/binary-tree-level-order-traversal/description/)
 
+- 一刷
+    - 有一个注意点，level_size一定要先算出来，因为后面还会向que里面加入元素，否则本层节点数错误
+
 ```cpp
 /**
  * Definition for a binary tree node.
@@ -3207,6 +3211,45 @@ public:
 
         if (root->left) preorder(root->left, ret, true);
         if (root->right) preorder(root->right, ret, false);
+    }
+};
+```
+
+#### [513. Find Bottom Left Tree Value](https://leetcode.com/problems/find-bottom-left-tree-value/)
+
+- 一刷
+    - 我的思路：层序遍历，每层第一个节点更新即可
+    - 不过这里有一个优化点，层序的顺序自己定，也可以从右到左。
+    - 那么到最后的节点，返回即可
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int findBottomLeftValue(TreeNode* root) {
+        queue<TreeNode*> que;
+        int ret = 0;
+        if (root) que.push(root);   
+        while (!que.empty()) {
+            int que_size = que.size();
+            for (int i = 0; i < que_size; ++i) {
+                auto node = que.front(); que.pop();
+                if (node->left) que.push(node->left);
+                if (node->right) que.push(node->right);
+                if (i == 0) ret = node->val;
+            }
+        }
+        return ret;
     }
 };
 ```
