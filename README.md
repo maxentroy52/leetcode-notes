@@ -75,6 +75,7 @@
     + [404. Sum of Left Leaves](#404-sum-of-left-leaves)
     + [513. Find Bottom Left Tree Value](#513-find-bottom-left-tree-value)
     + [112. Path Sum](#112-path-sum)
+    + [105. Construct Binary Tree from Preorder and Inorder Traversal](#105-construct-binary-tree-from-preorder-and-inorder-traversal)
 
 <!-- tocstop -->
 
@@ -3329,6 +3330,46 @@ public:
 
         if (root->right) return preorder(root->right, sum + root->val, target);
         else return false;
+    }
+};
+```
+
+#### [105. Construct Binary Tree from Preorder and Inorder Traversal](https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
+
+- 一刷
+    - 我的思路：从中序找根，然后递归左右区间，构成左右子树。
+    - 注意点：区间容易写错，我左开右闭。
+    - 先序区间我一直忘了排除根节点
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
+        return build( preorder, 0, preorder.size(), inorder, 0, inorder.size() );
+    }
+    TreeNode* build(vector<int>& preorder, int x, int y, vector<int>& inorder, int b, int e) {
+        if (x >= y or b >= e) return nullptr;
+
+        int mid;
+        for (mid = b; mid < e; ++mid) {
+            if (inorder[mid] == preorder[x]) break;
+        }
+
+        auto root = new TreeNode(inorder[mid]);
+        root->left = build(  preorder, x + 1, x + 1 + mid - b , inorder, b, mid );
+        root->right = build( preorder, x + 1 + mid - b, y,   inorder, mid + 1, e );
+        return root;
     }
 };
 ```
