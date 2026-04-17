@@ -74,6 +74,7 @@
     + [257. Binary Tree Paths](#257-binary-tree-paths)
     + [404. Sum of Left Leaves](#404-sum-of-left-leaves)
     + [513. Find Bottom Left Tree Value](#513-find-bottom-left-tree-value)
+    + [112. Path Sum](#112-path-sum)
 
 <!-- tocstop -->
 
@@ -3175,6 +3176,42 @@ public:
 };
 ```
 
+- 二刷
+    - 思路：下面的写法，不用显示的回溯。优雅。
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<string> binaryTreePaths(TreeNode* root) {
+        vector<string> ret;
+        if (!root) return ret;
+        preorder(root, "", ret);
+        return ret;
+    }
+
+    void preorder(TreeNode* root, string path, vector<string>& ret) {
+        if (!root->left and !root->right) {
+            ret.push_back(path + to_string(root->val));
+            return;
+        }
+
+        if (root->left) preorder(root->left, path + to_string(root->val) + "->", ret);
+        if (root->right) preorder(root->right, path + to_string(root->val) + "->", ret);
+    }
+};
+```
+
 #### [404. Sum of Left Leaves](https://leetcode.com/problems/sum-of-left-leaves/submissions/1979963156/)
 
 - 一刷
@@ -3250,6 +3287,48 @@ public:
             }
         }
         return ret;
+    }
+};
+```
+
+#### [112. Path Sum](https://leetcode.com/problems/path-sum/description/)
+
+- 一刷
+    - 我的思路：不是二叉树的题目，本质是搜索。这个题我借鉴了257的不显示回溯的写法
+    - 这个题遍历的技巧是，不要到空指针，到叶子就行。当然，这也是搜索的思路
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    bool hasPathSum(TreeNode* root, int targetSum) {
+        if (!root) return false;
+        return preorder(root, 0, targetSum);
+    }
+
+    bool preorder(TreeNode* root, int sum, int target) {
+        if (!root->left and !root->right) {
+            if (sum + root->val == target) return true;
+            else return false;
+        }
+
+        if (root->left) {
+            auto ret = preorder(root->left, sum + root->val, target);
+            if (ret) return true;
+        }
+
+        if (root->right) return preorder(root->right, sum + root->val, target);
+        else return false;
     }
 };
 ```
