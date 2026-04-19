@@ -76,6 +76,10 @@
     + [513. Find Bottom Left Tree Value](#513-find-bottom-left-tree-value)
     + [112. Path Sum](#112-path-sum)
     + [105. Construct Binary Tree from Preorder and Inorder Traversal](#105-construct-binary-tree-from-preorder-and-inorder-traversal)
+    + [654. Maximum Binary Tree](#654-maximum-binary-tree)
+    + [617. Merge Two Binary Trees](#617-merge-two-binary-trees)
+    + [98. Validate Binary Search Tree](#98-validate-binary-search-tree)
+    + [700. Search in a Binary Search Tree](#700-search-in-a-binary-search-tree)
 
 <!-- tocstop -->
 
@@ -3370,6 +3374,145 @@ public:
         root->left = build(  preorder, x + 1, x + 1 + mid - b , inorder, b, mid );
         root->right = build( preorder, x + 1 + mid - b, y,   inorder, mid + 1, e );
         return root;
+    }
+};
+```
+
+#### [654. Maximum Binary Tree](https://leetcode.com/problems/maximum-binary-tree/submissions/1982519675/)
+
+- 一刷
+    - 我的思路：跟上到题目思路完全一样，先找根，然后划分区间。递归构建
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
+        return build(nums, 0, nums.size());
+    }
+
+    TreeNode* build(vector<int>& nums, int b, int e) {
+        if (b >= e) return nullptr;
+
+        int root_idx = b;
+        int max = nums[root_idx];
+        for (int i = b + 1; i < e; ++i) {
+            if (max < nums[i]) { root_idx = i; max = nums[i]; }
+        }
+
+        auto* root = new TreeNode(max);
+        root->left = build(nums, b, root_idx);
+        root->right = build(nums, root_idx + 1, e);
+
+        return root;
+    }
+};
+```
+
+#### [617. Merge Two Binary Trees](https://leetcode.com/problems/merge-two-binary-trees/)
+
+- 一刷
+    - 思路：不要用非递归的思路去考虑这个问题，还是要更抽象一些。
+    - 我是参照了grandyang的思路，解法一也是递归，但它其实是一个更偏重非递归思考问题的办法，就不如下面这个简单
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* mergeTrees(TreeNode* root1, TreeNode* root2) {
+        if (!root1) return root2;
+        if (!root2) return root1;
+
+        auto* node = new TreeNode( root1->val + root2->val );
+        node->left = mergeTrees(root1->left, root2->left);
+        node->right = mergeTrees(root1->right, root2->right);
+        return node;
+    }
+};
+```
+
+#### [98. Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree/)
+
+- 一刷
+    - 我的思路：非线性的转化成线性
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    bool isValidBST(TreeNode* root) {  
+        vector<int> res;
+        inorder(root, res);
+        
+        for (int i = 1; i < res.size(); ++i) {
+            if (res[i - 1] >= res[i]) return false;
+        }
+
+        return true;
+    }
+    void inorder(TreeNode* root, vector<int>& res) {
+        if (!root) return;
+        inorder(root->left, res);
+        res.push_back(root->val);
+        inorder(root->right, res);
+    }
+};
+```
+
+#### [700. Search in a Binary Search Tree](https://leetcode.com/problems/search-in-a-binary-search-tree/)
+
+- 一刷
+    - 我的思路：按照定义查找即可
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* searchBST(TreeNode* root, int val) {
+        if (!root) return nullptr;
+
+        if (root->val == val) return root;
+        else if (val < root->val) return searchBST(root->left, val);
+        else return searchBST(root->right, val);
     }
 };
 ```
