@@ -3516,3 +3516,268 @@ public:
     }
 };
 ```
+
+#### [530. Minimum Absolute Difference in BST](https://leetcode.com/problems/minimum-absolute-difference-in-bst/submissions/1983324106/)
+
+- 一刷
+    - 我的思路：inorder遍历即可，但没必要遍历完，再处理。可以遍历中处理。
+    - 注意点：prev指针是引用，传值没用。
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int getMinimumDifference(TreeNode* root) {
+        int min = INT_MAX;
+        TreeNode* prev = nullptr;
+        inorder(root, prev, min);
+        return min;
+    }
+
+    void inorder(TreeNode* root, TreeNode*& pre, int& min) {
+        if (!root) return;
+
+        inorder(root->left, pre, min);
+        if (pre) { min = std::min(min, root->val - pre->val); }
+
+        pre = root;
+        inorder(root->right, pre, min);
+    }
+};
+```
+
+#### [501. Find Mode in Binary Search Tree](https://leetcode.com/problems/find-mode-in-binary-search-tree/submissions/1983340236/)
+
+- 一刷
+    - 思路：通过这两道题，总结出BST的一些通用解题思路。
+    - 如果要避免额外的空间，就要在inorder遍历中，就地处理。
+    - 同时，就地处理的，一定是状态，这意味着，一定要用引用保存状态。
+    - 我这个题，就是丢失了状态，导致一直没过。
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> findMode(TreeNode* root) {
+        vector<int> res;
+        TreeNode* pre = nullptr;
+        int cnt = 1;
+        int max_cnt = 0;
+        inorder(root, pre, cnt, max_cnt, res);
+        return res;
+    }
+    void inorder(TreeNode* root, TreeNode*& pre, int& cnt, int& max_cnt, vector<int>& res) {
+        if (!root) return;
+
+        inorder(root->left, pre, cnt, max_cnt, res);
+
+        if (pre) {
+            cnt = pre->val == root->val ?cnt + 1:1;
+        }
+        if (cnt == max_cnt) { res.push_back(root->val); }
+        if (cnt > max_cnt) { res.clear(); res.push_back(root->val); max_cnt = cnt; }
+
+        pre = root;
+        inorder(root->right, pre, cnt, max_cnt, res);
+    }
+};
+```
+
+#### [701. Insert into a Binary Search Tree](https://leetcode.com/problems/insert-into-a-binary-search-tree/)
+
+- 一刷
+    - 思路：这题其实反而要用整体的抽象思路来解决，还是递归。但是grandyang的思路好于随想录
+    - 核心都是，都叶子再插入。然后就是二分的思路。插入左右子树，同时更新左右子树跟节点
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* insertIntoBST(TreeNode* root, int val) {
+        if (!root) return new TreeNode(val);
+        if (val < root->val) root->left = insertIntoBST(root->left, val);
+        else root->right = insertIntoBST(root->right, val);
+        return root;
+    }
+};
+```
+
+#### [450. Delete Node in a BST](https://leetcode.com/problems/delete-node-in-a-bst/)
+
+- 一刷
+    - 思路：这题我觉得随想录的思路比价好，拆的比较细。
+    - BST可以利用二分的思路去递归。写法上跟上一道题类似，最后一定是要更新左右子树的指针。
+
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* deleteNode(TreeNode* root, int key) {
+        if (!root) return nullptr;
+
+        if (root->val == key ) {
+            // case1
+            if (!root->left and !root->right) { delete root; return nullptr; }
+
+            // case2
+            if (root->left and !root->right) { auto tmp = root; root = root->left; delete tmp; return root; }
+
+            // case3
+            if (root->right and !root->left) { auto tmp = root; root = root->right; delete tmp; return root; }
+
+            // case4
+            auto cur = root->right;
+            while (cur->left) cur = cur->left;
+
+            cur->left = root->left;
+            auto tmp = root;
+            root = root->right;
+            delete tmp;
+
+            return root;
+        }
+
+        if (key < root->val) root->left = deleteNode(root->left, key);
+        else root->right = deleteNode(root->right, key);
+
+        return root;
+    }
+};
+```
+
+- 二刷
+    - 思路：这个是一般写法，不针对BST
+    - 后续遍历，同时把左子树挂到右子树左下
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* deleteNode(TreeNode* root, int key) {
+        if (!root) return nullptr;
+
+        root->left = deleteNode(root->left, key);
+        root->right = deleteNode(root->right, key);
+
+        if (root->val == key) {
+            if (!root->left) {
+                auto tmp = root;
+                root = root->right;
+                delete tmp;
+                return root;
+            }
+
+            if (!root->right) {
+                auto tmp = root;
+                root = root->left;
+                delete tmp;
+                return root;
+            }
+
+            auto cur = root->right;
+            while (cur->left) cur = cur->left;
+            cur->left = root->left;
+
+            auto tmp = root;
+            root = root->right;
+            delete tmp;
+            return root;
+        }
+
+        return root;
+    }
+};
+```
+
+- 三刷
+    - 精简一刷代码
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* deleteNode(TreeNode* root, int key) {
+        if (!root) return nullptr;
+
+        if (root->val == key ) {
+            if (!root->left) { auto tmp = root; root = root->right; delete tmp; return root; }
+            if (!root->right) { auto tmp = root; root = root->left; delete tmp; return root; }
+
+            auto cur = root->right;
+            while (cur->left) cur = cur->left;
+
+            cur->left = root->left;
+            auto tmp = root;
+            root = root->right;
+            delete tmp;
+
+            return root;
+        }
+
+        if (key < root->val) root->left = deleteNode(root->left, key);
+        else root->right = deleteNode(root->right, key);
+
+        return root;
+    }
+};
+```
