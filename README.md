@@ -86,6 +86,9 @@
     + [450. Delete Node in a BST](#450-delete-node-in-a-bst)
     + [669. Trim a Binary Search Tree](#669-trim-a-binary-search-tree)
     + [108. Convert Sorted Array to Binary Search Tree](#108-convert-sorted-array-to-binary-search-tree)
+    + [538. Convert BST to Greater Tree](#538-convert-bst-to-greater-tree)
+    + [236. Lowest Common Ancestor of a Binary Tree](#236-lowest-common-ancestor-of-a-binary-tree)
+    + [235. Lowest Common Ancestor of a Binary Search Tree](#235-lowest-common-ancestor-of-a-binary-search-tree)
 
 <!-- tocstop -->
 
@@ -3854,6 +3857,142 @@ public:
         TreeNode* root = new TreeNode(nums[mid]);
         root->left = helper(nums, low, mid - 1);
         root->right = helper(nums, mid + 1, high);
+        return root;
+    }
+};
+```
+
+#### [538. Convert BST to Greater Tree](https://leetcode.com/problems/convert-bst-to-greater-tree/)
+
+- 一刷
+    - 思路：后-中-前遍历即可。
+    - 状态设计这里，需要注意，这个题是带状态的，不能回溯。
+    - 回到题面  
+        - 节点4(30 = 4 + 26(节点5))
+        - 但节点4肯定是从节点6回溯，如果不带状态，就是 4 + 21 = 25
+        - 所以，需要状态
+    - 这个题本质还是遍历题，但是用到了BST的特性
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* convertBST(TreeNode* root) {
+        TreeNode* pre = nullptr;
+        return traverse(root, pre);
+    }
+    TreeNode* traverse(TreeNode* root, TreeNode*& pre) {
+        if (!root) return nullptr;
+
+        traverse(root->right, pre);
+        if (pre) root->val += pre->val;
+        pre = root;
+        traverse(root->left, pre);
+        return root;
+    }
+};
+```
+
+- 二刷
+    - 思路：优化变量，不需要指针，sum累加状态即可
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* convertBST(TreeNode* root) {
+        int sum = 0;
+        return traverse(root, sum);
+    }
+    TreeNode* traverse(TreeNode* root, int& sum) {
+        if (!root) return nullptr;
+
+        traverse(root->right, sum);
+        root->val += sum;
+        sum = root->val;
+        traverse(root->left, sum);
+        return root;
+    }
+};
+```
+
+#### [236. Lowest Common Ancestor of a Binary Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/)
+
+- 一刷
+    - 思路：这个题解法看着简单，但其实不好想。
+    - 核心思路：搜索，但只搜索不够，你还得回溯。所以后续遍历，这个先确定。
+    - 重要结论：如果left and right分别找到，那么当前root就一定是LCA
+    - 否则：向上传递即可(这里不好理解)
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        if (!root or root == p or root == q) return root;
+
+        auto left = lowestCommonAncestor(root->left, p, q);
+        auto right = lowestCommonAncestor(root->right, p, q);
+
+        if (left and right) return root;
+        return left?left:right;
+    }
+};
+```
+
+#### [235. Lowest Common Ancestor of a Binary Search Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/)
+
+- 一刷
+    - 思路：这个题其实跟正常的LCA不太一样，还是充分利用BST特性。
+    - BST是可以比大小的，如果p/q都比root大，那就在right找，都笑，那就在left找。
+    - 最关键的就是，如果p/q不在一边，那就证明当前root是LCA.
+    - 类似上面那种left and right都存在的情形，这个是找LCA的关键。
+    - 所以，这个题看起来就是还分，只要把p/q划分开了，LCA就找到了。
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+
+class Solution {
+public:
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        if (p->val < root->val and q->val < root->val) return lowestCommonAncestor(root->left, p, q);
+        if (root->val < p->val and root->val < q->val) return lowestCommonAncestor(root->right, p, q);
         return root;
     }
 };
