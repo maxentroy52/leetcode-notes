@@ -80,6 +80,12 @@
     + [617. Merge Two Binary Trees](#617-merge-two-binary-trees)
     + [98. Validate Binary Search Tree](#98-validate-binary-search-tree)
     + [700. Search in a Binary Search Tree](#700-search-in-a-binary-search-tree)
+    + [530. Minimum Absolute Difference in BST](#530-minimum-absolute-difference-in-bst)
+    + [501. Find Mode in Binary Search Tree](#501-find-mode-in-binary-search-tree)
+    + [701. Insert into a Binary Search Tree](#701-insert-into-a-binary-search-tree)
+    + [450. Delete Node in a BST](#450-delete-node-in-a-bst)
+    + [669. Trim a Binary Search Tree](#669-trim-a-binary-search-tree)
+    + [108. Convert Sorted Array to Binary Search Tree](#108-convert-sorted-array-to-binary-search-tree)
 
 <!-- tocstop -->
 
@@ -3777,6 +3783,77 @@ public:
         if (key < root->val) root->left = deleteNode(root->left, key);
         else root->right = deleteNode(root->right, key);
 
+        return root;
+    }
+};
+```
+
+#### [669. Trim a Binary Search Tree](https://leetcode.com/problems/trim-a-binary-search-tree/submissions/1984320002/)
+
+- 一刷
+    - 思路：这个题我觉得随想录的思路是没问题的，这个题看起来简单，但如果有BST的惯性，只能按照随想录的办法来做。
+    - 不过，这个题我最终按照grandyang的思路来做，因为简单
+        - 核心做法还是先根遍历，递归。非常抽象。
+        - 但，能这么做的核心是利用了BST的特性
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* trimBST(TreeNode* root, int low, int high) {
+        if (!root) return nullptr;
+
+        if (root->val < low) return trimBST(root->right, low, high);
+        if (high < root->val) return trimBST(root->left, low, high);
+        root->left = trimBST(root->left, low, high);
+        root->right = trimBST(root->right, low, high);
+
+        return root;
+    }
+};
+```
+
+#### [108. Convert Sorted Array to Binary Search Tree](https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/description/)
+
+- 一刷
+    - 思路：线性需求转化为非线性序列，有了之前前序 + 中序的那道题目，积累经验。
+    - 递归划分区间即可。BST二分划分即可
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* sortedArrayToBST(vector<int>& nums) {
+        return helper(nums, 0, nums.size() - 1);
+    }
+
+    TreeNode* helper(vector<int>& nums, int low, int high) {
+        // 闭区间 [low, high]
+        if (low > high) return nullptr;
+
+        int mid = low + (high - low) / 2;
+        TreeNode* root = new TreeNode(nums[mid]);
+        root->left = helper(nums, low, mid - 1);
+        root->right = helper(nums, mid + 1, high);
         return root;
     }
 };
