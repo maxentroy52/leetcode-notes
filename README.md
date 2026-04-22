@@ -89,6 +89,12 @@
     + [538. Convert BST to Greater Tree](#538-convert-bst-to-greater-tree)
     + [236. Lowest Common Ancestor of a Binary Tree](#236-lowest-common-ancestor-of-a-binary-tree)
     + [235. Lowest Common Ancestor of a Binary Search Tree](#235-lowest-common-ancestor-of-a-binary-search-tree)
+- [搜索](#%E6%90%9C%E7%B4%A2)
+  * [基础](#%E5%9F%BA%E7%A1%80-5)
+    + [77. Combinations](#77-combinations)
+    + [216. Combination Sum III](#216-combination-sum-iii)
+    + [17. Letter Combinations of a Phone Number](#17-letter-combinations-of-a-phone-number)
+    + [39. Combination Sum](#39-combination-sum)
 
 <!-- tocstop -->
 
@@ -3997,3 +4003,205 @@ public:
     }
 };
 ```
+
+## 搜索
+
+### 基础
+
+#### [77. Combinations](https://leetcode.com/problems/combinations/submissions/1985047794/)
+
+- 一刷
+    - 思路：我之前有搜索的基础，所以理解起来相对容易。
+    - level这个东西不用传了，因为path.size()就是level
+    - [start, n]这个是横向的搜索空间
+    - [1, k]纵向的搜索空间
+    - 本质是dfs，level(path.size)，搜索树的深度达到K就到头了
+    - 组合的特点是需要去重，pre-pruning可以做这个事情，不过下标传递的时候，只要升序，就可以做pruning
+
+```cpp
+class Solution {
+public:
+    vector<int> path;
+    vector<vector<int>> ret;
+    vector<vector<int>> combine(int n, int k) {
+        path.clear();
+        ret.clear();
+
+        dfs(n, k, 1);
+
+        return ret;
+    }
+
+    void dfs(int n, int k, int start) {
+        if (path.size() == k) {
+            ret.push_back(path);
+            return;
+        }
+
+        for (int i = start; i <= n; ++i) {
+            path.push_back(i);
+            dfs(n, k, i + 1);
+            path.pop_back();
+        }
+    }
+};
+```
+
+#### [216. Combination Sum III](https://leetcode.com/problems/combination-sum-iii/description/)
+
+- 一刷
+    - 思路：还是组合题，最终path行成的时候，判断一下。
+    - 横向空间[1,9]
+    - 纵向空间[1,k]
+    - n本质是target
+
+```cpp
+class Solution {
+public:
+    vector<int> path;
+    vector<vector<int>> ret;
+    vector<vector<int>> combinationSum3(int k, int n) {
+        path.clear();
+        ret.clear();
+        dfs(n, k, 1);
+        return ret;
+    }
+    void dfs(int n, int k, int start) {
+        if (path.size() == k) {
+            auto sum = accumulate(path.begin(), path.end(), 0);
+            if (sum == n) ret.push_back(path);
+            return;
+        }
+
+        for (int i = start; i <= 9; ++i) {
+            path.push_back(i);
+            dfs(n, k, i + 1);
+            path.pop_back();
+        }
+    }
+};
+```
+
+- 二刷
+    - 思路：优化sum状态，遍历是记录即可。
+    - 注意，这里要回溯。所以，更好的写法是直接写到参数里。
+    - 区别之前碰到的很多二叉树题目，不能回溯。
+    - 这里也看出区别，递归只是程序设计技术，和回溯算法绑定。
+```cpp
+class Solution {
+public:
+    vector<int> path;
+    vector<vector<int>> ret;
+    vector<vector<int>> combinationSum3(int k, int n) {
+        path.clear();
+        ret.clear();
+        dfs(n, k, 1, 0);
+        return ret;
+    }
+    void dfs(int n, int k, int start, int sum) {
+        if (path.size() == k) {
+            if (sum == n) ret.push_back(path);
+            return;
+        }
+
+        for (int i = start; i <= 9; ++i) {
+            path.push_back(i);
+            dfs(n, k, i + 1, sum + i);
+            path.pop_back();
+        }
+    }
+};
+```
+
+#### [17. Letter Combinations of a Phone Number](https://leetcode.com/problems/letter-combinations-of-a-phone-number/)
+
+- 一刷
+    - 思路：一般，不用传树的深度，path.size()会记录
+    - 这个题特殊的点在于，level需要检索digits
+
+```cpp
+class Solution {
+public:
+    const string map[10] = {
+        "", // 0
+        "", // 1
+        "abc", // 2
+        "def", // 3
+        "ghi", // 4
+        "jkl", // 5
+        "mno", // 6
+        "pqrs", // 7
+        "tuv", // 8
+        "wxyz", // 9
+    };
+    vector<string> ret;
+    string path;
+    vector<string> letterCombinations(string digits) {
+        path.clear();
+        ret.clear();
+        dfs(digits, 0);
+        return ret;
+    }
+
+    void dfs(const string& digits, int level) {
+        if (level == digits.size()) {
+            ret.push_back(path);
+            return;
+        }
+
+        int digit = digits[level] - '0';
+        const auto& letters = map[digit];
+        for (const auto& ch : letters) {
+            path.push_back(ch);
+            dfs(digits, level + 1);
+            path.pop_back();
+        }
+    }
+};
+```
+
+- 二刷
+    - 更简洁的写法，不用显示回溯
+    - 这个题，如果把ret写成参数，它就必须是引用，和path对比。因为ret不需要回溯
+```cpp
+class Solution {
+public:
+    const string map[10] = {
+        "", // 0
+        "", // 1
+        "abc", // 2
+        "def", // 3
+        "ghi", // 4
+        "jkl", // 5
+        "mno", // 6
+        "pqrs", // 7
+        "tuv", // 8
+        "wxyz", // 9
+    };
+    vector<string> ret;
+    vector<string> letterCombinations(string digits) {
+        ret.clear();
+        dfs(digits, 0, "");
+        return ret;
+    }
+
+    void dfs(const string& digits, int level, string path) {
+        if (level == digits.size()) {
+            ret.push_back(path);
+            return;
+        }
+
+        int digit = digits[level] - '0';
+        const auto& letters = map[digit];
+        for (const auto& ch : letters) {
+            dfs(digits, level + 1, path + ch);
+        }
+    }
+};
+```
+
+#### [39. Combination Sum](https://leetcode.com/problems/combination-sum/description/)
+
+- 一刷
+    - 思路：这个题也挺好，它的好处在于，让你避免固化思维。
+    - 我们搜索，搜索的是整个解空间树，但是解空间树，不是固定的形态。这个要意识到
