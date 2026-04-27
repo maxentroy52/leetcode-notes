@@ -95,6 +95,10 @@
     + [216. Combination Sum III](#216-combination-sum-iii)
     + [17. Letter Combinations of a Phone Number](#17-letter-combinations-of-a-phone-number)
     + [39. Combination Sum](#39-combination-sum)
+- [贪心](#%E8%B4%AA%E5%BF%83)
+  * [基础](#%E5%9F%BA%E7%A1%80-6)
+    + [455. Assign Cookies](#455-assign-cookies)
+    + [55. Jump Game](#55-jump-game)
 
 <!-- tocstop -->
 
@@ -4205,3 +4209,60 @@ public:
 - 一刷
     - 思路：这个题也挺好，它的好处在于，让你避免固化思维。
     - 我们搜索，搜索的是整个解空间树，但是解空间树，不是固定的形态。这个要意识到
+
+## 贪心
+
+### 基础
+
+#### [455. Assign Cookies](https://leetcode.com/problems/assign-cookies/description/)
+
+- 一刷
+    - 思路：这个题弥补了一些贪心的基础，局部最优构成全局最优。
+    - 这个题有意思的地方在于，如果你用两重循环写，你发现反而没有任何意义。
+        - 因为每一重开始，其实就选一个，能放就放。
+        - 放不了就不放，遍历下一个槽位了。
+    - 所以，你看，这是不是跟混排一个样。
+
+```cpp
+class Solution {
+public:
+    int findContentChildren(vector<int>& g, vector<int>& s) {
+        sort(g.begin(), g.end());
+        sort(s.begin(), s.end());
+
+        int res = 0;
+        int index = s.size() - 1;
+        for (int i = g.size() - 1; i >= 0; --i) {
+            if (index >= 0 and s[index] >= g[i]) { res++; index--; }
+        }
+        return res;
+    }
+};
+```
+
+#### [55. Jump Game](https://leetcode.com/problems/jump-game/)
+
+- 一刷
+    - 思路：这个题贪心，其实有点不容易想到。因为很容易从每一位置跳最大的步数。
+    - [3,5,1,0,4]，比如这个数组，第一个位置跳3，那就到不了。所以不能跳3，这么看，不是贪心。
+    - 这个题奇妙的是，维护了从每个位置触发的，最大触达点。只要有触达点能到最终位置就行。
+    - [0,5,1,0,4]，这个数组为什么失败。因为到位置1的时候，发现位置0的最大触达点，所以失败。
+    - 所以，核心是判断当前位置，能否被之前的最大触达点到达。
+    - 难在，不好直接贪心思路，并且很容易认为贪心无法解。
+
+```cpp
+class Solution {
+public:
+    bool canJump(vector<int>& nums) {
+        int max_reach = 0;
+        for (int i = 0; i < nums.size(); ++i) {
+            if (i > max_reach) return false;
+
+            max_reach = max(max_reach, nums[i] + i);
+
+            if (max_reach > nums.size() - 1) return true;
+        }
+        return true;
+    }
+};
+```
