@@ -4209,6 +4209,108 @@ public:
 - 一刷
     - 思路：这个题也挺好，它的好处在于，让你避免固化思维。
     - 我们搜索，搜索的是整个解空间树，但是解空间树，不是固定的形态。这个要意识到
+    - 不过这个题做的时候，还是出了点问题。这个是组合，不是排列。组合是之前位置出现过的，这个位置不能出现。
+    - 所以，搜索树宽度的起点是递增的。
+    - 但是，这个题是可以无限用，我理解错了。它是当前位置，当前元素无限用，不是上一个位置的，能放在这。
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> ret;
+    vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
+        ret.clear();
+        vector<int> path;
+        int sum = 0;
+
+        dfs(candidates, path, sum, target, 0);
+        return ret;
+    }
+
+    void dfs(vector<int>& nums, vector<int> path, int sum, int target, int start) {
+        if (sum > target) return;
+        if (sum == target) { ret.push_back(path); return; }
+
+        for (int i = start; i < nums.size(); ++i) {
+            path.push_back(nums[i]);
+            dfs(nums, path, sum + nums[i], target, i);
+            path.pop_back();
+        }
+    }
+};
+```
+
+#### [40. Combination Sum II](https://leetcode.com/problems/combination-sum-ii/)
+
+- 一刷 
+    - 思路：上面的写法，换到此题，也没有问题。
+    - 只不过，集合里面出现了重复的元素。比如[1,1,2]这个集合
+        - [1_1,2]跟[1_2,2]在位置上是没有重复的。
+        - 但是，元素重复，导致重复了。
+    - 增加剪枝策略，相同元素，对同一个位置试探，剪枝。所有，这里在宽度遍历时剪枝。
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> ret;
+    vector<vector<int>> combinationSum2(vector<int>& candidates, int target) {
+        ret.clear();
+        vector<int> path;
+        int sum = 0;
+        sort(candidates.begin(), candidates.end());
+
+        dfs(candidates, path, sum, target, 0);
+        return ret;
+    }
+
+    void dfs(vector<int>& nums, vector<int> path, int sum, int target, int start) {
+        if (sum > target) return;
+        if (sum == target) { ret.push_back(path); return; }
+
+        for (int i = start; i < nums.size(); ++i) {
+            if (i > 0 and nums[i] == nums[i - 1]) continue;  // 剪枝
+            path.push_back(nums[i]);
+            dfs(nums, path, sum + nums[i], target, i + 1);
+            path.pop_back();
+        }
+    }
+};
+```
+
+- 但上面的办法，没有过。因为它误伤了一种情况，就是相同元素在不同位置，这个是没问题的。
+- 我们要剪枝的是，同一层，相同元素不能重复try
+- 所以，相同元素在不同层次，这个是OK的。
+- 解法：加入vis数组标记可，这里我觉得随想录的vis数组设置的更合理，它是针对位置，我是针对元素。前者可枚举。
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> ret;
+    vector<vector<int>> combinationSum2(vector<int>& candidates, int target) {
+        ret.clear();
+        vector<int> path;
+        vector<bool> vis(candidates.size(), false);
+        int sum = 0;
+        sort(candidates.begin(), candidates.end());
+
+        dfs(candidates, path, vis, sum, target, 0);
+        return ret;
+    }
+
+    void dfs(vector<int>& nums, vector<int>& path, vector<bool>& vis, int sum, int target, int start) {
+        if (sum > target) return;
+        if (sum == target) { ret.push_back(path); return; }
+
+        for (int i = start; i < nums.size(); ++i) {
+            if (i > 0 and nums[i] == nums[i - 1] and vis[i - 1] == false) continue;  // 剪枝
+            path.push_back(nums[i]);
+            vis[i] = true;
+            dfs(nums, path, vis, sum + nums[i], target, i + 1);
+            path.pop_back();
+            vis[i] = false;
+        }
+    }
+};
+```
 
 ## 贪心
 
