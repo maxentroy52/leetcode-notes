@@ -95,10 +95,13 @@
     + [216. Combination Sum III](#216-combination-sum-iii)
     + [17. Letter Combinations of a Phone Number](#17-letter-combinations-of-a-phone-number)
     + [39. Combination Sum](#39-combination-sum)
+    + [40. Combination Sum II](#40-combination-sum-ii)
+    + [131. Palindrome Partitioning](#131-palindrome-partitioning)
 - [贪心](#%E8%B4%AA%E5%BF%83)
   * [基础](#%E5%9F%BA%E7%A1%80-6)
     + [455. Assign Cookies](#455-assign-cookies)
     + [55. Jump Game](#55-jump-game)
+    + [1005. Maximize Sum Of Array After K Negations](#1005-maximize-sum-of-array-after-k-negations)
 
 <!-- tocstop -->
 
@@ -4312,6 +4315,53 @@ public:
 };
 ```
 
+#### [131. Palindrome Partitioning](https://leetcode.com/problems/palindrome-partitioning/submissions/1990199736/)
+
+- 一刷
+    - 思路：这个题写法其实不难，关键是如何理解这个划分。
+    - path的状态怎么理解，这个理解上，应该是一个完整的，满足要求的划分即可。
+    - 划分的理解，本质是string的结尾，所以，枚举划分，本质是枚举串的结尾，或者说下一个串的开始。
+```cpp
+class Solution {
+public:
+    vector<vector<string>> ret;
+    vector<vector<string>> partition(string s) {
+        ret.clear();
+        vector<string> path;
+        dfs(s, path, 0);
+        return ret;
+    }
+
+    void dfs(const string& s, vector<string>& path, int start) {
+        // 这里证明拿到一个完整符合条件的划分
+        if (start == s.size()) {
+            ret.push_back(path);
+            return;
+        }
+
+        // 注意搜索树的宽度
+        // [begin, end]作为一个划分
+        // 所以，枚举划分，本质是枚举划分串的end
+        for (int end = start; end < s.size(); ++end) {
+            if (isPalin(s, start, end)) {
+                path.push_back(s.substr(start, end - start + 1));
+
+                dfs(s, path, end + 1);
+
+                path.pop_back();
+            }
+        }
+    }
+
+    bool isPalin(const string& s, int l, int r) {
+        while (l < r) {
+            if (s[l++] != s[r--]) return false;
+        }
+        return true;
+    } 
+};
+```
+
 ## 贪心
 
 ### 基础
@@ -4348,7 +4398,7 @@ public:
     - 思路：这个题贪心，其实有点不容易想到。因为很容易从每一位置跳最大的步数。
     - [3,5,1,0,4]，比如这个数组，第一个位置跳3，那就到不了。所以不能跳3，这么看，不是贪心。
     - 这个题奇妙的是，维护了从每个位置触发的，最大触达点。只要有触达点能到最终位置就行。
-    - [0,5,1,0,4]，这个数组为什么失败。因为到位置1的时候，发现位置0的最大触达点，所以失败。
+    - [0,5,1,0,4]，这个数组为什么失败。因为到位置1的时候，发现位置0的最大触达点到不了这里，所以失败。
     - 所以，核心是判断当前位置，能否被之前的最大触达点到达。
     - 难在，不好直接贪心思路，并且很容易认为贪心无法解。
 
@@ -4365,6 +4415,36 @@ public:
             if (max_reach > nums.size() - 1) return true;
         }
         return true;
+    }
+};
+```
+
+- 二刷
+    - 核心判断逻辑是，当前位置，之前的最大触发点无法到达，那么失败。
+
+
+#### [1005. Maximize Sum Of Array After K Negations](https://leetcode.com/problems/maximize-sum-of-array-after-k-negations/)
+
+- 一刷
+    - 思路：这题也挺有意思，有点技巧。
+    - 先处理负数，因为负数处理之后变成正数。
+    - 然后，再处理正数。注意，可以反复对一个数进行操作，所有这个时候只有k是奇数，才有操作必要。
+    - 负数是先操作绝对值大的，正数是一直操作绝对值最小的。
+
+```cpp
+class Solution {
+public:
+    int largestSumAfterKNegations(vector<int>& nums, int k) {
+        sort(nums.begin(), nums.end(), [](int lhs, int rhs) { return abs(lhs) > abs(rhs) ; });
+
+        int n = nums.size();
+        for (int i = 0; i < n; ++i) {
+            if (nums[i] < 0 and k) {nums[i] *= -1; k--; }
+        }      
+
+        if (k % 2)  { nums[n - 1] *= -1; }
+
+        return accumulate(nums.begin(), nums.end(), 0);
     }
 };
 ```
