@@ -4362,6 +4362,149 @@ public:
 };
 ```
 
+#### [78. Subsets](https://leetcode.com/problems/subsets/)
+
+- 一刷
+    - 思路：acwing的思路，指数型枚举。
+    - 每个位置，放或者不放。最简单
+```cpp
+class Solution {
+public:
+    vector<vector<int>> ret;
+    vector<vector<int>> subsets(vector<int>& nums) {
+        ret.clear();
+        vector<int> path;
+        dfs(nums, path, 0);
+        return ret;
+    }
+
+    void dfs(const vector<int>& nums, vector<int>& path, int level) {
+        if (level == nums.size()) {
+            ret.push_back(path);
+            return;
+        }
+
+        // Prune: Two clear branches - include or exclude current element
+        
+        // Branch 1: Exclude current element
+        dfs(nums, path, level + 1);
+        
+        // Branch 2: Include current element
+        path.push_back(nums[level]);
+        dfs(nums, path, level + 1);
+        path.pop_back();  // Backtrack
+    }
+};
+```
+
+- 二刷
+    - 思路：随想录的办法我觉得也不错，它是遍历搜索树。
+    - 所以搜索树的节点，都需要处理。
+    - 注意一点，这里要求升序，所以每次从start开始
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> ret;
+    vector<vector<int>> subsets(vector<int>& nums) {
+        ret.clear();
+        vector<int> path;
+        dfs(nums, path, 0);
+        return ret;
+    }
+
+    void dfs(vector<int>& nums, vector<int>& path, int start) {
+        ret.push_back(path);
+
+        if (start == nums.size()) return;
+
+        for (int i = start; i < nums.size(); ++i) {
+            path.push_back(nums[i]);
+            dfs(nums, path, i + 1);
+            path.pop_back();
+        }
+    }
+};
+```
+
+#### [90. Subsets II](https://leetcode.com/problems/subsets-ii/submissions/1990931340/)
+
+- 一刷
+    - 思路：其实subset才是dfs需要讲的demo题目。
+    - 去重的思路，相同元素，不能在同一层试探，但是可以在不同层试探。
+    - 所以，如果发现是相同元素，在同一层试探，那就得干掉。
+    - 子集最核心的解法是，它其实是在遍历解空间。
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> ret;
+    vector<vector<int>> subsetsWithDup(vector<int>& nums) {
+        ret.clear();
+        sort(nums.begin(), nums.end());
+        vector<int> path;
+        vector<bool> vis(nums.size(), 0);
+
+        dfs(nums, path, vis, 0);
+        return ret;
+    }
+    void dfs(vector<int>& nums, vector<int>& path, vector<bool>& vis, int start) {
+        ret.push_back(path);
+
+        if (start == nums.size()) return;
+
+        for (int i = start; i < nums.size(); ++i) {
+            if (0 < i and nums[i] == nums[i - 1] and !vis[i - 1]) continue;
+            path.push_back(nums[i]);
+            vis[i] = true;
+            dfs(nums, path, vis, i + 1);
+            path.pop_back();
+            vis[i] = false;
+        }
+    }
+};
+```
+
+#### [491. Non-decreasing Subsequences](https://leetcode.com/problems/non-decreasing-subsequences/submissions/1991086253/)
+
+- 一刷
+    - 思路：这个题我的问题是，不能排序，既然不能排序，就不能像之前那样来剪枝。
+    - 核心：相同元素在本层不能重复试探。之前的剪枝条件也是这个
+    - 但是，不能排序，不能用。
+    - 所以，直接本层去重即可。
+    - 本层去重，无回溯这么一说。
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> ret;
+    vector<vector<int>> findSubsequences(vector<int>& nums) {
+        vector<int> path;
+
+        dfs(nums, path, 0);
+
+        return ret;   
+    }
+
+    void dfs(vector<int>& nums, vector<int>& path, int start) {
+        if(path.size() > 1) ret.push_back(path);
+        
+        if (start == nums.size()) return;
+
+        unordered_set<int> uset;
+        for (int i = start; i < nums.size(); ++i) {
+            if (!path.empty() and path.back() > nums[i]) continue;
+            if (uset.count(nums[i])) continue;
+            
+            uset.insert(nums[i]);
+            path.push_back(nums[i]);
+            dfs(nums, path, i + 1);
+            path.pop_back();
+        }
+    }
+};
+```
+
 ## 贪心
 
 ### 基础
