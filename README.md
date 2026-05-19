@@ -97,6 +97,10 @@
     + [39. Combination Sum](#39-combination-sum)
     + [40. Combination Sum II](#40-combination-sum-ii)
     + [131. Palindrome Partitioning](#131-palindrome-partitioning)
+    + [78. Subsets](#78-subsets)
+    + [90. Subsets II](#90-subsets-ii)
+    + [491. Non-decreasing Subsequences](#491-non-decreasing-subsequences)
+    + [46. Permutations](#46-permutations)
 - [贪心](#%E8%B4%AA%E5%BF%83)
   * [基础](#%E5%9F%BA%E7%A1%80-6)
     + [455. Assign Cookies](#455-assign-cookies)
@@ -4473,6 +4477,7 @@ public:
     - 但是，不能排序，不能用。
     - 所以，直接本层去重即可。
     - 本层去重，无回溯这么一说。
+    - uset逻辑上是需要回溯的，但实现上并不需要，想想为什么？
 
 ```cpp
 class Solution {
@@ -4499,6 +4504,42 @@ public:
             uset.insert(nums[i]);
             path.push_back(nums[i]);
             dfs(nums, path, i + 1);
+            path.pop_back();
+        }
+    }
+};
+```
+
+#### [46. Permutations](https://leetcode.com/problems/permutations/description/)
+
+- 一刷
+    - 思路：首先start不需要，排列对于每一个位置，所有元素都可以试探。组合的时候，为了去重([1,2] and [2,1])，只用递增序列。
+    - 但是，剪枝这里需要注意，同一个元素，不能试探多个位置。这个还是必须的。
+    - 同时，level其实没必要。
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> ret;
+    vector<vector<int>> permute(vector<int>& nums) {
+        ret.clear();
+        vector<int> path;
+        vector<bool> vis(nums.size(), false);
+
+        dfs(nums, 0, path, vis);
+        return ret;
+    }
+
+    void dfs(const vector<int>& nums, int level, vector<int>& path, vector<bool>& vis) {
+        if (level == nums.size()) { ret.push_back(path); return;}
+
+        for (int i = 0;  i < nums.size(); ++i) {
+            if (vis[i]) continue;
+
+            vis[i] = true;
+            path.push_back(nums[i]);
+            dfs(nums, level + 1, path, vis);
+            vis[i] = false;
             path.pop_back();
         }
     }
