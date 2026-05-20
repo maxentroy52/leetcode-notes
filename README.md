@@ -101,6 +101,7 @@
     + [90. Subsets II](#90-subsets-ii)
     + [491. Non-decreasing Subsequences](#491-non-decreasing-subsequences)
     + [46. Permutations](#46-permutations)
+    + [47. Permutations II](#47-permutations-ii)
 - [贪心](#%E8%B4%AA%E5%BF%83)
   * [基础](#%E5%9F%BA%E7%A1%80-6)
     + [455. Assign Cookies](#455-assign-cookies)
@@ -4539,6 +4540,51 @@ public:
             vis[i] = true;
             path.push_back(nums[i]);
             dfs(nums, level + 1, path, vis);
+            vis[i] = false;
+            path.pop_back();
+        }
+    }
+};
+```
+
+#### [47. Permutations II](https://leetcode.com/problems/permutations-ii/)
+
+- 一刷：思路同上，但多了一个剪枝条件。
+    - 同层，相同元素，不能重复试探。
+    - 不同层，相同元素，可以重复试探。
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> ret;
+    vector<vector<int>> permuteUnique(vector<int>& nums) {
+        ret.clear();
+        vector<bool> vis(nums.size(), false);
+        vector<int> path;
+        sort(nums.begin(), nums.end());
+        dfs(nums, path, vis);
+        return ret;
+    }
+
+    void dfs(const vector<int>& nums, vector<int>& path, vector<bool>& vis) {
+        if (path.size() == nums.size()) {
+            ret.push_back(path);
+            return;
+        }
+
+        for (int i = 0; i < nums.size(); ++i) {
+            // pruning1: 当前元素去重
+            if (vis[i]) continue;
+
+            // pruning2: 同层相同元素，不能重复试探。
+            // 相同元素如果已经试探上一层，这是可以的
+            if (0 < i and nums[i] == nums[i - 1] and !vis[i - 1]) continue;
+
+            vis[i] = true;
+            path.push_back(nums[i]);
+
+            dfs(nums, path, vis);
+
             vis[i] = false;
             path.pop_back();
         }
