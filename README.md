@@ -102,6 +102,7 @@
     + [491. Non-decreasing Subsequences](#491-non-decreasing-subsequences)
     + [46. Permutations](#46-permutations)
     + [47. Permutations II](#47-permutations-ii)
+    + [51. N-Queens](#51-n-queens)
 - [贪心](#%E8%B4%AA%E5%BF%83)
   * [基础](#%E5%9F%BA%E7%A1%80-6)
     + [455. Assign Cookies](#455-assign-cookies)
@@ -4588,6 +4589,57 @@ public:
             vis[i] = false;
             path.pop_back();
         }
+    }
+};
+```
+
+#### [51. N-Queens](https://leetcode.com/problems/n-queens/)
+
+- 一刷
+    - carl总结的递归模板，按照这个思路来做。
+    - 注意，在每一层row试探，相当于对层内重复的case做了试探。
+
+```cpp
+class Solution {
+public:
+    vector<vector<string>> result;
+    vector<vector<string>> solveNQueens(int n) {
+        result.clear();
+        vector<string> chessboard(n, string(n, '.'));
+
+        dfs(chessboard, 0, n);
+
+        return result;
+    }
+
+    void dfs(vector<string>& chessboard, int row, int n) {
+        if (n == row) {
+            result.push_back(chessboard);
+            return;
+        }
+
+        for (int col = 0; col < n; ++col) {
+            if (!valid(chessboard, row, col, n)) continue;
+
+            chessboard[row][col] = 'Q';
+            dfs(chessboard, row + 1, n);
+            chessboard[row][col] = '.';
+        }
+    }
+
+    bool valid(vector<string>& chessboard, int row, int col, int n) {
+        for (int i = 0; i < row; ++i) {
+            if (chessboard[i][col] == 'Q') return false;
+        }
+
+        for (int i = row - 1, k = col - 1; 0 <= i and 0 <= k; --i,--k) {
+            if (chessboard[i][k] == 'Q') return false;
+        }
+
+         for (int i = row - 1, k = col + 1; 0 <= i and k < n; --i,++k) {
+            if (chessboard[i][k] == 'Q') return false;
+        }       
+        return true;
     }
 };
 ```
