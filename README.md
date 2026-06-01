@@ -103,6 +103,7 @@
     + [46. Permutations](#46-permutations)
     + [47. Permutations II](#47-permutations-ii)
     + [51. N-Queens](#51-n-queens)
+    + [37. Sudoku Solver](#37-sudoku-solver)
 - [贪心](#%E8%B4%AA%E5%BF%83)
   * [基础](#%E5%9F%BA%E7%A1%80-6)
     + [455. Assign Cookies](#455-assign-cookies)
@@ -4642,6 +4643,84 @@ public:
         return true;
     }
 };
+```
+
+#### [37. Sudoku Solver](https://leetcode.com/problems/sudoku-solver/)
+
+- 一刷
+    - 这个题，我觉得难点并不是在思路上不好想，而是代码如何组织。
+    - 对比N-Queens的代码，前者还是朴素的搜索
+        - 边界条件
+        - 遍历
+        - 试探-递归-回溯
+    - N-queens试探的层次是行，每一次遍历的时候，行不一样。
+        - 所以，每一次遍历，针对列即可。因为它放的都是queen. 放的东西都是一样的。
+    - 回到sudoku这个题，其实都是二维，但是它比较复杂。
+        - N-queens，是每一行放一个queen即可。放完就可以去下一行。
+        - 但是，sudoku不是，每一行有很多数字需要放。
+            - 所以，这里重中之重，试探-递归-回溯 这个循环，一定是一个二维行列循环，因为只有这样，才能遍历所有位置。
+            - 其实N-queen也是这样，只不过它递归的时候，用的是行。每一次的循环是列。因为它只放一个，可以这么做。而sudoku每一行必须放慢。
+            - 同时，对于每一个位置。N-queens是只放一个queen。而sudoku这里是1-9都可以放。所以，它整个是一个三维循环。
+    - 所以，dfs代码的差异较大。前者是只遍历col，放queen即可。后者是遍历行列，放1-9即可。
+    - 这两者的本质区别是，怎么用dfs遍历一个二维结构。
+        - 前者，row的遍历，是在dfs中，用level体现。col是在每一层的dfs遍历中
+        - 后者，就是在每一层的局面，遍历row and col，没有level的体现。
+    - 整体代码，看起来有点难，但是拆解下来，理解。问题不大，核心的核心，dfs算法，到底是怎么遍历这个二维棋盘的。
+    
+```cpp
+class Solution {
+public:
+    void solveSudoku(vector<vector<char>>& board) {
+        dfs(board);
+    }
+
+    bool dfs(vector<vector<char>>& board) {
+        for (int i = 0; i < board.size(); ++i) {
+            for (int k = 0; k < board[i].size(); ++k) {
+                if (board[i][k] != '.') continue;
+
+                for (char ch = '1'; ch <= '9'; ++ch) {
+                    if (!valid(board, i, k, ch)) continue;
+
+                    board[i][k] = ch;
+                    if (dfs(board)) return true;  // 这里也是比较关键的写法 没有一个ret来记录最终合法路径，所以找到就一路返回到底
+                    board[i][k] = '.';
+                }
+
+                // 进到i,k循环，但是ch没有合法的。
+                // 那证明找不到
+                // 下面那个是i, k循环都没进
+                // 所以，合法的
+                return false;
+            }
+        }
+
+        // 这里就是原来的边界
+        // dfs在遍历的时候，如果i, k都越界了。那证明找打了一组，返回。
+        // 只不过没有显示写，以为入参没有i and k
+        return true;
+    }
+
+    bool valid(const vector<vector<char>>& board, int row, int col, char ch) {
+        // 判断行/列是否重复
+        for (int i = 0; i < 9; ++i) {
+            if (board[row][i] == ch) return false;
+            if (board[i][col] == ch) return false;
+        }
+
+        // 判断九宫格
+        // 九宫格里面的数字，都需要扫一遍
+        // 而是一个二维判断，难的是九宫格怎么判断
+        int start_row = (row / 3) * 3;
+        int start_col = (col / 3) * 3;
+        for (int i = start_row; i < start_row + 3; ++i) {
+            for (int k = start_col; k < start_col + 3; ++k) {
+                if (board[i][k] == ch) return false;
+            }
+        }
+        return true;
+    }
+}; 
 ```
 
 ## 贪心
