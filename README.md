@@ -4666,6 +4666,17 @@ public:
         - 前者，row的遍历，是在dfs中，用level体现。col是在每一层的dfs遍历中
         - 后者，就是在每一层的局面，遍历row and col，没有level的体现。
     - 整体代码，看起来有点难，但是拆解下来，理解。问题不大，核心的核心，dfs算法，到底是怎么遍历这个二维棋盘的。
+- 二刷
+    - 我又思考了下，N-queens and sudoku，这两个题本质都是遍历二维棋盘。
+    - 但，不好理解的在于sudoku的遍历方式，其实，sudoku可以按照N-queens的方式来遍历。
+    - 前者，每次递增更新row，类似于level. 然后，每次遍历的局面是列，这一列找一个地儿放queen.
+    - 后者，也可以这么做。但不只是更新row, 可以传递i,j. 然后遍历1-9，看是否可以放在当前位置。
+    - 如果可以，试探下一个位置，(i, j + 1)，如果j越界，那就(i + 1, 0)
+    - 所以，每一个试探局面是(i, j)，在这个局面里面，试探1-9
+    - 但karl的实现没有这么写，主要它不想判断迭代的(i, j)，它每次都从头遍历，所以每一个试探局面是所有下标，然后剪枝。
+        - 这里，让它的代码，看起来有点困惑。
+        - 比如，N-queens的一个局面，即所有可能试探点，就是当前行的所有列。
+        - sudoku，在i,j确定后，应该是1-9。但它的写法不是这样，它是遍历所有坐标。这个看起来比较奇怪
     
 ```cpp
 class Solution {
@@ -4721,6 +4732,60 @@ public:
         return true;
     }
 }; 
+```
+
+- 三刷
+    - 采用了和N-queens写法一样的做法
+    - 上面就是按这个分析的。
+        - 如果遍历所有局面(搜索树的一个节点)
+        - 每次局面，如何试探
+    - 下面的写法效率更高，避免了冗余计算的写法
+
+```cpp
+class Solution {
+public:
+    void solveSudoku(vector<vector<char>>& board) {
+        dfs(board, 0, 0);
+    }
+
+    bool dfs(vector<vector<char>>& board, int row, int col) {
+        // 递归终止条件
+        if (row == 9) return true;
+
+        // 这个并不是递归终止条件
+        // 而是合法试探，只不过下标过了，调整一下
+        if (col == 9) return dfs(board, row + 1, 0);
+
+        // 这个也是合法试探
+        // 剪枝了
+        if (board[row][col] != '.') return dfs(board, row, col + 1);
+
+        // 本轮局面(row, col)试探
+        for (char ch = '1'; ch <= '9'; ++ch) {
+            if (!valid(board, row, col, ch)) continue;
+
+            board[row][col] = ch;
+            if (dfs(board, row, col + 1)) return true;
+            board[row][col] = '.';
+        }
+        return false;
+    }
+
+    bool valid(const vector<vector<char>>& board, int row, int col, char ch) {
+        for (int i = 0; i < 9; ++i) {
+            if (board[row][i] == ch or board[i][col] == ch) return false;
+        }
+
+        int start_row = (row / 3) * 3;
+        int start_col = (col / 3) * 3;
+        for (int i = start_row; i < start_row + 3; ++i) {
+            for (int k = start_col; k < start_col + 3; ++k) {
+                if (board[i][k] == ch) return false;
+            }
+        }
+        return true;
+    }
+};
 ```
 
 ## 贪心
