@@ -4061,6 +4061,73 @@ public:
 };
 ```
 
+- 二刷
+    - 到二刷了，理解就更加深刻。尤其是有后面几个题的基础。
+    - 核心点，如何枚举解空间。解空间中的每一个状态怎么保存？
+    - 三步骤
+        - 解空间终点。递归边界
+        - 单层搜索起点
+        - 单层试探-递归-回溯 三步骤。
+    - 从下面的代码说，path就是解空间的每一个状态，通过path来枚举解空间。
+```cpp
+class Solution {
+public:
+    vector<vector<int>> ret;
+    vector<vector<int>> combine(int n, int k) {
+        ret.clear();
+        vector<int> path;
+
+        dfs(path, 1, k, n);
+        return ret;
+    }
+
+    void dfs(vector<int>& path, int start, int k, int n) {
+        if (path.size() == k) {
+            ret.push_back(path);
+            return;
+        }
+
+        for (int i = start; i <= n; ++i ) {
+            path.push_back(i);
+            dfs(path, i + 1, k, n);
+            path.pop_back();
+        }
+    }
+};
+```
+
+- 三刷
+    - 剪枝优化
+    - i [start, n - (k - path.size()) + 1]
+    - 这么考虑，n = 4, k = 2. i 最最大得从3开始试探，如果从4开始试探第一个位置。后面没有元素可放了，所以留好空间。
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> ret;
+    vector<vector<int>> combine(int n, int k) {
+        ret.clear();
+        vector<int> path;
+
+        dfs(path, 1, k, n);
+        return ret;
+    }
+
+    void dfs(vector<int>& path, int start, int k, int n) {
+        if (path.size() == k) {
+            ret.push_back(path);
+            return;
+        }
+
+        for (int i = start; i <= n - (k - path.size()) + 1; ++i ) {
+            path.push_back(i);
+            dfs(path, i + 1, k, n);
+            path.pop_back();
+        }
+    }
+};
+```
+
 #### [216. Combination Sum III](https://leetcode.com/problems/combination-sum-iii/description/)
 
 - 一刷
